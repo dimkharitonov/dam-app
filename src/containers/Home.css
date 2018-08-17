@@ -1,0 +1,16 @@
+.Home {
+  width: 100%;
+  height: calc(100vh - 2.5rem);
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.Home div {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
