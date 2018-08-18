@@ -15,6 +15,22 @@
   margin: 0;
 }
 
+.App-title, .App-menu {
+  display: inline-block;
+}
+
+.App-menu {
+  float: right;
+  text-align: right;
+  padding-right: 0.5rem;
+  font-size: 0.825rem;
+}
+
+.App-menu a {
+  color: #FFF;
+  text-decoration: none;
+}
+
 .App-intro {
   font-size: large;
 }

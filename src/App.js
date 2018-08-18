@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Routes from './Routes';
 
 import './App.css';
@@ -17,6 +17,8 @@ class App extends Component {
     this.setState({ isAuthenticated });
   };
 
+  handleLogout = event => this.userHasAuthenticated(false);
+
   render() {
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
@@ -28,6 +30,10 @@ class App extends Component {
         <div className="App">
           <header className="App-header">
             <h1 className="App-title">DAM Control Center</h1>
+            {this.state.isAuthenticated
+              ? <div className="App-menu"><Link to="/login" onClick={this.handleLogout}>Logout</Link></div>
+              : ""
+            }
 
           </header>
 
