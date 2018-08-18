@@ -12,21 +12,19 @@ export default class Login extends Component {
   }
 
   validateForm() {
-    console.log(`validate form ${this.state.email.length} && ${this.state.password.length}`);
     return this.state.email.length > 0 && this.state.password.length > 0;
   }
 
   handleChange = event => {
-    console.log( `set ${event.target.id} to ${event.target.value}`);
     this.setState(
       {[event.target.id]: event.target.value}
     );
   };
 
   handleSubmit = event => {
-    console.log('Submit login form event');
     event.preventDefault();
     this.props.userHasAuthenticated(true);
+    this.props.history.push('/');
   };
 
   render() {
