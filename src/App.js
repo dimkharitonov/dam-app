@@ -5,7 +5,24 @@ import Routes from './Routes';
 import './App.css';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isAuthenticated: false
+    };
+  }
+
+  userHasAuthenticated = isAuthenticated => {
+    console.log(`set authenticated flag to ${isAuthenticated}`);
+    this.setState({ isAuthenticated });
+  };
+
   render() {
+    const childProps = {
+      isAuthenticated: this.state.isAuthenticated,
+      userHasAuthenticated: this.userHasAuthenticated.bind(this)
+    };
+
     return (
       <Router>
         <div className="App">
@@ -14,7 +31,7 @@ class App extends Component {
 
           </header>
 
-          <Routes />
+          <Routes childProps={childProps} />
         </div>
       </Router>
     );

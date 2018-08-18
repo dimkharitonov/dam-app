@@ -26,6 +26,7 @@ export default class Login extends Component {
   handleSubmit = event => {
     console.log('Submit login form event');
     event.preventDefault();
+    this.props.userHasAuthenticated(true);
   };
 
   render() {
