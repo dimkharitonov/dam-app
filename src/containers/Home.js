@@ -50,7 +50,7 @@ export default class Home extends Component {
         <div className="home--list">
           {
             this.assets.map(({ id, name, type, modified, author, size }) =>
-              <div className="list--item" id="{id}">
+              <div className="list--item" key="{id}">
                 <div>{name} - { id } {size}</div>
                 <div>{type}, author { author}</div>
                 <div>{modified}</div>
