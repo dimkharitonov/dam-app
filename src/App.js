@@ -29,12 +29,11 @@ class App extends Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <h1 className="App-title">DAM Control Center</h1>
+            <h1 className="App-title">DAM</h1>
             {this.state.isAuthenticated
               ? <div className="App-menu"><Link to="/login" onClick={this.handleLogout}>Logout</Link></div>
               : ""
             }
-
           </header>
 
           <Routes childProps={childProps} />

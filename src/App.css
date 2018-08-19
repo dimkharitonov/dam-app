@@ -1,5 +1,6 @@
 .App {
   width: 100%;
+  height: 100vh;
 }
 
 .App-header {
@@ -8,6 +9,10 @@
   line-height: 2.5rem;
   color: rgba(255,255,255,0.87);
   padding-left: 1rem;
+  position: fixed;
+  top: 0;
+  left:0;
+  width: 100%;
 }
 
 .App-title {
@@ -15,12 +20,11 @@
   margin: 0;
 }
 
-.App-title, .App-menu {
-  display: inline-block;
-}
 
 .App-menu {
-  float: right;
+  position: absolute;
+  right: 1.5rem;
+  top:0;
   text-align: right;
   padding-right: 0.5rem;
   font-size: 0.825rem;
