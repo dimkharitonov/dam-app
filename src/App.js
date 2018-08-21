@@ -77,7 +77,12 @@ class App extends Component {
     this.setState({ isAuthenticated });
   };
 
-  handleLogout = event => this.userHasAuthenticated(false);
+  handleLogout = async event => {
+    await Auth.signOut();
+    if(this._isMounted) {
+      this.userHasAuthenticated(false);
+    }
+  };
 
   render() {
     const childProps = {
