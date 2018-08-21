@@ -8,7 +8,41 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isAuthenticated: false
+      isAuthenticated: false,
+      assets: [
+        {
+          id: 'XXXX-XXXX-XXXX-XX01',
+          name: 'superfile image contains cats.jpg',
+          type: 'image',
+          modified: '2018-05-05 12:34',
+          author: 'John Smith',
+          size: '1.5Mb'
+        },
+        {
+          id: 'XXXX-XXXX-XXXX-XX02',
+          name: 'superfile image contains cats.jpg',
+          type: 'image',
+          modified: '2018-05-05 12:34',
+          author: 'John Smith',
+          size: '1.5Mb'
+        },
+        {
+          id: 'XXXX-XXXX-XXXX-XX03',
+          name: 'superfile image contains cats.jpg',
+          type: 'image',
+          modified: '2018-05-05 12:34',
+          author: 'John Smith',
+          size: '1.5Mb'
+        },
+        {
+          id: 'XXXX-XXXX-XXXX-XX04',
+          name: 'superfile image contains cats.jpg',
+          type: 'image',
+          modified: '2018-05-05 12:34',
+          author: 'John Smith',
+          size: '1.5Mb'
+        }
+      ]
     };
   }
 
@@ -22,7 +56,8 @@ class App extends Component {
   render() {
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
-      userHasAuthenticated: this.userHasAuthenticated.bind(this)
+      userHasAuthenticated: this.userHasAuthenticated.bind(this),
+      assets: this.state.assets
     };
 
     return (

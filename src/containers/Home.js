@@ -5,40 +5,7 @@ export default class Home extends Component {
   constructor(props) {
     super(props);
 
-    this.assets = [
-      {
-        id: 'XXXX-XXXX-XXXX-XXXX',
-        name: 'superfile image contains cats.jpg',
-        type: 'image',
-        modified: '2018-05-05 12:34',
-        author: 'John Smith',
-        size: '1.5Mb'
-      },
-      {
-        id: 'XXXX-XXXX-XXXX-XXXX',
-        name: 'superfile image contains cats.jpg',
-        type: 'image',
-        modified: '2018-05-05 12:34',
-        author: 'John Smith',
-        size: '1.5Mb'
-      },
-      {
-        id: 'XXXX-XXXX-XXXX-XXXX',
-        name: 'superfile image contains cats.jpg',
-        type: 'image',
-        modified: '2018-05-05 12:34',
-        author: 'John Smith',
-        size: '1.5Mb'
-      },
-      {
-        id: 'XXXX-XXXX-XXXX-XXXX',
-        name: 'superfile image contains cats.jpg',
-        type: 'image',
-        modified: '2018-05-05 12:34',
-        author: 'John Smith',
-        size: '1.5Mb'
-      }
-    ];
+    this.assets = [...props.assets];
   }
 
   render() {
@@ -49,8 +16,8 @@ export default class Home extends Component {
         </div>
         <div className="home--list">
           {
-            this.assets.map(({ id, name, type, modified, author, size }) =>
-              <div className="list--item" key="{id}">
+            this.assets.map(({ id, name, type, modified, author, size }, i) =>
+              <div className="list--item" key={id}>
                 <div>{name} - { id } {size}</div>
                 <div>{type}, author { author}</div>
                 <div>{modified}</div>
