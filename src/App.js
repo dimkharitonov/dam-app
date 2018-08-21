@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Routes from './Routes';
+import { Auth } from 'aws-amplify';
 
 import './App.css';
 
@@ -9,6 +10,7 @@ class App extends Component {
     super(props);
     this.state = {
       isAuthenticated: false,
+      isAuthenticating: true,
       assets: [
         {
           id: 'XXXX-XXXX-XXXX-XX01',
@@ -44,10 +46,34 @@ class App extends Component {
         }
       ]
     };
+
+    this._isMounted = false;
   }
 
+  componentDidMount = async () => {
+    this._isMounted = true;
+    try {
+      if(await Auth.currentSession()) {
+        if(this._isMounted) {
+          this.userHasAuthenticated(true);
+        }
+      }
+    } catch(e) {
+      if(e !== 'No current user') {
+        alert(e);
+      }
+    }
+
+    if(this._isMounted) {
+      this.setState({ isAuthenticating: false });
+    }
+  };
+
+  componentWillUnmount = () => {
+    this._isMounted = false;
+  };
+
   userHasAuthenticated = isAuthenticated => {
-    console.log(`set authenticated flag to ${isAuthenticated}`);
     this.setState({ isAuthenticated });
   };
 
@@ -61,19 +87,22 @@ class App extends Component {
     };
 
     return (
-      <Router>
-        <div className="App">
-          <header className="App-header">
-            <h1 className="App-title">DAM</h1>
-            {this.state.isAuthenticated
-              ? <div className="App-menu"><Link to="/login" onClick={this.handleLogout}>Logout</Link></div>
-              : ""
-            }
-          </header>
+      this.state.isAuthenticating ?
+        <div className="authentificating-progress">authentificating...</div> :
 
-          <Routes childProps={childProps} />
-        </div>
-      </Router>
+        <Router>
+          <div className="App">
+            <header className="App-header">
+              <h1 className="App-title">DAM</h1>
+              {this.state.isAuthenticated
+                ? <div className="App-menu"><Link to="/login" onClick={this.handleLogout}>Logout</Link></div>
+                : ""
+              }
+            </header>
+
+            <Routes childProps={childProps} />
+          </div>
+        </Router>
     );
   }
 }
