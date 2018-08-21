@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Auth } from 'aws-amplify';
 import './Login.css';
+import LoadingButton from '../ui/LoadingButton';
+
 
 export default class Login extends Component {
   constructor(props) {
@@ -9,7 +11,8 @@ export default class Login extends Component {
     this.state = {
       email: '',
       password: '',
-      errorMessage: ''
+      errorMessage: '',
+      isLoading: false
     };
   }
 
@@ -47,13 +50,14 @@ export default class Login extends Component {
 
   handleSubmit = async event => {
     event.preventDefault();
+    this.setState({isLoading: true});
 
     try {
       await Auth.signIn(this.state.email, this.state.password);
       this.props.userHasAuthenticated(true);
-      this.props.history.push('/');
     } catch(e) {
       this.setErrorMessage(e.message);
+      this.setState({isLoading: false});
     }
   };
 
@@ -86,10 +90,14 @@ export default class Login extends Component {
 
           <div className="formError">{ this.state.errorMessage}</div>
 
-          <input
+          <LoadingButton
             type="submit"
+            className="button"
             disabled={!this.validateForm()}
-            value="Login"/>
+            text="Login"
+            loadingText="checking..."
+            isLoading={this.state.isLoading}
+          />
         </form>
       </div>
     );
