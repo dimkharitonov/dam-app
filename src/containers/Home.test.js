@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { MemoryRouter } from 'react-router'
 import Home from './Home';
 
 it('renders without crashing', () => {
@@ -38,6 +39,6 @@ it('renders without crashing', () => {
     }
   ];
   const div = document.createElement('div');
-  ReactDOM.render(<Home assets={assets}/>, div);
+  ReactDOM.render(<MemoryRouter><Home assets={assets}/></MemoryRouter>, div);
   ReactDOM.unmountComponentAtNode(div);
 });
