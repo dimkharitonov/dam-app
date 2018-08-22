@@ -15,7 +15,7 @@ export default class AddText extends Component {
       title: 'noname',
       coordinates: '',
       summary: '',
-      body: '',
+      content: '',
       html: '',
       author: '',
       origin: '',
@@ -25,6 +25,15 @@ export default class AddText extends Component {
       isFetching: false,
       fetchingMessage: ''
     };
+
+    [
+      'handleSubmit',
+      'handleChange',
+      'handleWikiFetch',
+      'getFields',
+      'getFieldsAsHash'
+    ].map(f => this[f] = this[f].bind(this));
+
   }
 
   handleSubmit = async event => {
@@ -41,11 +50,14 @@ export default class AddText extends Component {
       author: this.state.author
     };
 
-    let document = JSON.stringify({
-      title: this.state.title,
-      author: this.state.author,
-      body: this.state.body
-    });
+    let document = JSON.stringify(
+      this.getFields().reduce((h, f) => {
+        console.log(`save ${f} as ${this.state[f]}`);
+        h[f] = this.state[f];
+        return h;
+      }, {})
+    );
+    console.log('document to save', document);
 
     utils.storeData(document, meta)
       .then(result => {
@@ -93,16 +105,7 @@ export default class AddText extends Component {
       let wikiData = {};
 
       try {
-        const fields = [
-          'content',
-          'categories',
-          'fullInfo',
-          'coordinates',
-          'langlinks',
-          'mainImage',
-          'rawImages',
-          'summary'
-        ];
+        const fields = this.getFields();
         wikiData = fields.map(async f => wiki({apiUrl:api}).page(page).then(page => page[f]()));
 
         wikiData = await Promise.all(wikiData);
@@ -136,17 +139,32 @@ export default class AddText extends Component {
     if(!data.error) {
       // update state
       let title = (data.fullInfo && data.fullInfo.name) || pageName.replace('_', ' ');
+
       this.setState({
+        ...this.getFieldsAsHash(data),
         title: title,
         slug: utils.getSlug(title),
         origin: wikiPage,
-        summary: data.summary,
-        body: data.content,
         coordinates: JSON.stringify(data.coordinates)
       });
     }
-    console.log(data);
   };
+
+  getFields = () => [
+    'content',
+    'categories',
+    'fullInfo',
+    'coordinates',
+    'langlinks',
+    'mainImage',
+    'rawImages',
+    'summary'
+  ];
+
+  getFieldsAsHash = (src) => this.getFields().reduce((h, f)=>{
+    h[f] = src[f];
+    return h;
+  }, {});
 
   render() {
     return (
@@ -226,12 +244,12 @@ export default class AddText extends Component {
             </textarea>
           </div>
           <div className="form-field">
-            <label htmlFor="body">Body</label>
+            <label htmlFor="content">Body</label>
             <textarea
-              id="body"
-              name="body"
+              id="content"
+              name="content"
               onChange={this.handleChange}
-              value={this.state.body}
+              value={this.state.content}
             >
             </textarea>
           </div>
