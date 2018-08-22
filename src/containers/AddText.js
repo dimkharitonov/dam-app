@@ -42,7 +42,7 @@ export default class AddText extends Component {
 
     let meta = {
       title: this.state.title,
-      fileName: this.state.slug,
+      fileName: utils.getDocumentFileName(this.state.slug),
       origin: this.state.origin,
       extension: '.json',
       type: 'application/json',
@@ -72,7 +72,7 @@ export default class AddText extends Component {
 
             imageMeta = {
               title: wu.getImageTitle(image.title),
-              fileName: image.pageid || wu.getImageId(image.imageinfo[0].descriptionshorturl),
+              fileName: utils.getMediaFileName(image.pageid || wu.getImageId(image.imageinfo[0].descriptionshorturl)),
               extension: wu.getImageExtension(image.imageinfo[0].url),
               origin: image.imageinfo[0].descriptionurl,
               source: image.imageinfo[0].url,

@@ -4,6 +4,9 @@ import { Storage } from 'aws-amplify';
 export default {
   getSlug: (fileName) => sg(fileName, { unknown: '_' }),
 
+  getDocumentFileName: (fileName) => 'documents/' + fileName,
+
+  getMediaFileName: (fileName) => 'media/' + fileName,
 
   unfoldEvent: event => {
     return {
