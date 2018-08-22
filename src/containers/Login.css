@@ -23,7 +23,7 @@
 }
 
 .form-field input, .form-field textarea {
-  width: 100%;
+  width: calc(100% - 0.5rem - 2px);
   color: rgba(0,0,0,0.87);
   padding: 0.25rem;
   border: solid 1px rgba(0,0,0,0.37);
@@ -45,7 +45,7 @@
   border: solid 1px rgba(0,0,255,0.57);
 }
 
-input[type="submit" i], button[type="submit" i] {
+input[type="submit" i], button {
   font-size: 1rem;
   line-height: 1.5rem;
   padding: 0.5rem 1rem;
@@ -57,7 +57,7 @@ input[type="submit" i], button[type="submit" i] {
   width: 12rem;
 }
 
-input[type="submit" i]:disabled, button[type="submit" i]:disabled {
+input[type="submit" i]:disabled, button:disabled {
   background-color: #999;
   color: rgba(255,255,255,0.79);
 }

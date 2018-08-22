@@ -2,3 +2,12 @@
   width: 80%;
   margin: 5rem auto 0;
 }
+
+.form-field.with-button input {
+  width: calc(100% - 13.5rem - 2px);
+  margin-right: 1rem;
+}
+
+.form-field.with-button button {
+  margin-bottom: 1px;
+}

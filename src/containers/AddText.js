@@ -3,19 +3,27 @@ import { Link } from 'react-router-dom';
 import './AddText.css';
 import LoadingButton from "../ui/LoadingButton";
 import utils from '../lib/Utils';
+import wiki from 'wikijs';
+
 
 export default class AddText extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      wikiPage: '',
       title: 'noname',
+      coordinates: '',
+      summary: '',
       body: '',
-      author: 'unknown',
+      html: '',
+      author: '',
       origin: '',
       isLoading: false,
       slug: 'noname',
-      message: ''
+      message: '',
+      isFetching: false,
+      fetchingMessage: ''
     };
   }
 
@@ -55,7 +63,8 @@ export default class AddText extends Component {
     let params = {
       ...this.state,
       ...utils.unfoldEvent(event),
-      message: ''
+      message: '',
+      fetchingMessage: ''
     };
     this.setState({
       ...params,
@@ -63,10 +72,106 @@ export default class AddText extends Component {
     });
   };
 
+  handleWikiFetch = async event => {
+    event.preventDefault();
+
+    const wikiPage = this.state.wikiPage;
+
+    const getLanguage = (url) => {
+      const topLevelParts = url.split('/');
+      const domainParts = topLevelParts.length >=3 ? topLevelParts[2].split('.') : [];
+
+      return domainParts.length >=3 ? domainParts[0] : 'en';
+    };
+
+    const getPageName = (url) => url.split('/').reverse()[0];
+
+    const getApiUrl = (lang) => 'http://[LNG].wikipedia.org/w/api.php'.replace('[LNG]', lang);
+
+    const fetchPage = async (api, page) => {
+
+      let wikiData = {};
+
+      try {
+        const fields = [
+          'content',
+          'categories',
+          'fullInfo',
+          'coordinates',
+          'langlinks',
+          'mainImage',
+          'rawImages',
+          'summary'
+        ];
+        wikiData = fields.map(async f => wiki({apiUrl:api}).page(page).then(page => page[f]()));
+
+        wikiData = await Promise.all(wikiData);
+
+        wikiData = fields.reduce((h, f, i) => {
+          h[f] = wikiData[i];
+          return h;
+        }, {})
+
+      } catch(e) {
+        console.log(e);
+        wikiData = {
+          error: e,
+          message: e.message
+        }
+      }
+
+      return wikiData;
+    };
+
+
+    this.setState({isFetching: true});
+
+    const apiUrl = getApiUrl(getLanguage(wikiPage));
+    const pageName = getPageName(wikiPage);
+
+    const data = await fetchPage(apiUrl, pageName);
+
+    this.setState({isFetching: false, fetchingMessage: data.message });
+
+    if(!data.error) {
+      // update state
+      let title = (data.fullInfo && data.fullInfo.name) || pageName.replace('_', ' ');
+      this.setState({
+        title: title,
+        slug: utils.getSlug(title),
+        origin: wikiPage,
+        summary: data.summary,
+        body: data.content,
+        coordinates: JSON.stringify(data.coordinates)
+      });
+    }
+    console.log(data);
+  };
+
   render() {
     return (
       <div className="addtext-form">
         <form onSubmit={this.handleSubmit}>
+          <div className="form-field with-button">
+            <label htmlFor="wikiPage">Wiki Page URL</label>
+            <input
+              id="wikiPage"
+              name="wikiPage"
+              type="text"
+              onChange={this.handleChange}
+            />
+            <LoadingButton
+              className="button"
+              disabled={this.state.wikiPage.length===0}
+              text="Fetch"
+              loadingText="fetching..."
+              isLoading={this.state.isFetching}
+              onClick={this.handleWikiFetch}
+            />
+            <div className="addtext-form--slug">
+              {this.state.fetchingMessage}
+            </div>
+          </div>
           <div className="form-field">
             <label htmlFor="title">Title</label>
             <input
@@ -74,7 +179,7 @@ export default class AddText extends Component {
               name="title"
               type="text"
               onChange={this.handleChange}
-              defaultValue={this.state.title}
+              value={this.state.title}
             />
             <div className="addtext-form--slug">
               {this.state.slug}
@@ -87,7 +192,7 @@ export default class AddText extends Component {
               name="author"
               type="text"
               onChange={this.handleChange}
-              defaultValue={this.state.author}
+              value={this.state.author}
             />
           </div>
           <div className="form-field">
@@ -97,8 +202,28 @@ export default class AddText extends Component {
               name="origin"
               type="text"
               onChange={this.handleChange}
-              defaultValue={this.state.origin}
+              value={this.state.origin}
             />
+          </div>
+          <div className="form-field">
+            <label htmlFor="coordinates">Coordinates</label>
+            <input
+              id="coordinates"
+              name="coordinates"
+              type="text"
+              onChange={this.handleChange}
+              value={this.state.coordinates}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="summary">Summary</label>
+            <textarea
+              id="summary"
+              name="summary"
+              onChange={this.handleChange}
+              value={this.state.summary}
+            >
+            </textarea>
           </div>
           <div className="form-field">
             <label htmlFor="body">Body</label>
@@ -106,7 +231,7 @@ export default class AddText extends Component {
               id="body"
               name="body"
               onChange={this.handleChange}
-              defaultValue={this.state.body}
+              value={this.state.body}
             >
             </textarea>
           </div>
@@ -124,6 +249,7 @@ export default class AddText extends Component {
 
           <Link to="/">Cancel</Link>
         </form>
+
       </div>
     );
   }
