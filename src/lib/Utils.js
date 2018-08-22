@@ -45,7 +45,7 @@ export default {
         })
 
         .catch(e => {
-          console.log('error', e);
+          console.log(`Error storing ${meta.fileName} file type ${meta.type}. Origin ${meta.origin}`, e);
           reject(e);
         });
 

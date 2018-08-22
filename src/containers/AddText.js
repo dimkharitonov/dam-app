@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './AddText.css';
 import LoadingButton from "../ui/LoadingButton";
 import utils from '../lib/Utils';
-import wiki from 'wikijs';
+import wu from '../lib/WikiUtils';
 
 
 export default class AddText extends Component {
@@ -30,8 +30,7 @@ export default class AddText extends Component {
       'handleSubmit',
       'handleChange',
       'handleWikiFetch',
-      'getFields',
-      'getFieldsAsHash'
+      'getFields'
     ].map(f => this[f] = this[f].bind(this));
 
   }
@@ -44,31 +43,75 @@ export default class AddText extends Component {
     let meta = {
       title: this.state.title,
       fileName: this.state.slug,
+      origin: this.state.origin,
       extension: '.json',
       type: 'application/json',
       created: Date.now(),
       author: this.state.author
     };
 
-    let document = JSON.stringify(
-      this.getFields().reduce((h, f) => {
-        console.log(`save ${f} as ${this.state[f]}`);
-        h[f] = this.state[f];
-        return h;
-      }, {})
-    );
-    console.log('document to save', document);
+    let document = {
+      ...wu.getFieldsAsHash(this.getFields(), this.state),
+      title: this.state.title
+    };
 
-    utils.storeData(document, meta)
-      .then(result => {
-        console.log('stored successfull', result);
-        this.setState({ isLoading: false, message: 'Saved successfully' });
+    let relatedImages = [];
 
-      })
-      .catch(e => {
-        console.log('get error ', e);
-        this.setState({ isLoading: false, message: `ERROR: ${e.message}` });
-      })
+    try {
+      // save images
+      if(document.rawImages && document.rawImages.length > 0) {
+
+        for(let i=0; i<document.rawImages.length; i++) {
+          let imageMeta = {};
+
+          try {
+            const image = document.rawImages[i];
+
+            this.setState({ message: `image ${i+1} of ${document.rawImages.length}: fetching...`});
+            let imageFile = await wu.getImage(image.imageinfo[0].url);
+
+            imageMeta = {
+              title: wu.getImageTitle(image.title),
+              fileName: image.pageid || wu.getImageId(image.imageinfo[0].descriptionshorturl),
+              extension: wu.getImageExtension(image.imageinfo[0].url),
+              origin: image.imageinfo[0].descriptionurl,
+              source: image.imageinfo[0].url,
+              type: imageFile.type,
+              created: Date.now()
+            };
+
+            this.setState({ message: `image ${i+1} of ${document.rawImages.length}: uploading...`});
+
+            let result = await utils.storeData(imageFile, imageMeta);
+            relatedImages = [
+              ...relatedImages,
+              result.key
+            ];
+          } catch (e) {
+            this.setState({ message: `ERROR while saving image ${imageMeta}`});
+          }
+        }
+      }
+
+      // save document
+
+      this.setState({ message: 'saving document'});
+
+      meta = {
+        ...meta,
+        relatedImages: relatedImages
+      };
+
+      console.log('document to save', document);
+
+      let result = await utils.storeData(JSON.stringify(document), meta);
+      console.log('stored successfull', result);
+      this.setState({ isLoading: false, message: 'Saved successfully' });
+    } catch (e) {
+      console.log('get error ', e);
+      this.setState({ isLoading: false, message: `ERROR: ${e.message}` });
+    }
+
   };
 
   handleChange = event => {
@@ -89,65 +132,16 @@ export default class AddText extends Component {
 
     const wikiPage = this.state.wikiPage;
 
-    const getLanguage = (url) => {
-      const topLevelParts = url.split('/');
-      const domainParts = topLevelParts.length >=3 ? topLevelParts[2].split('.') : [];
-
-      return domainParts.length >=3 ? domainParts[0] : 'en';
-    };
-
-    const getPageName = (url) => url.split('/').reverse()[0];
-
-    const getApiUrl = (lang) => 'http://[LNG].wikipedia.org/w/api.php'.replace('[LNG]', lang);
-
-    const fetchPage = async (api, page) => {
-
-      let wikiData = {};
-
-      try {
-        const fields = this.getFields();
-        wikiData = fields.map(async f => wiki({apiUrl:api}).page(page).then(page => page[f]()));
-
-        wikiData = await Promise.all(wikiData);
-
-        wikiData = fields.reduce((h, f, i) => {
-          h[f] = wikiData[i];
-          return h;
-        }, {})
-
-      } catch(e) {
-        console.log(e);
-        wikiData = {
-          error: e,
-          message: e.message
-        }
-      }
-
-      return wikiData;
-    };
-
-
     this.setState({isFetching: true});
 
-    const apiUrl = getApiUrl(getLanguage(wikiPage));
-    const pageName = getPageName(wikiPage);
+    const data = await wu.getArticle(wikiPage, this.getFields());
 
-    const data = await fetchPage(apiUrl, pageName);
+    this.setState({
+      ...data,
+      isFetching: false,
+      fetchingMessage: data.message
+    });
 
-    this.setState({isFetching: false, fetchingMessage: data.message });
-
-    if(!data.error) {
-      // update state
-      let title = (data.fullInfo && data.fullInfo.name) || pageName.replace('_', ' ');
-
-      this.setState({
-        ...this.getFieldsAsHash(data),
-        title: title,
-        slug: utils.getSlug(title),
-        origin: wikiPage,
-        coordinates: JSON.stringify(data.coordinates)
-      });
-    }
   };
 
   getFields = () => [
@@ -161,10 +155,17 @@ export default class AddText extends Component {
     'summary'
   ];
 
-  getFieldsAsHash = (src) => this.getFields().reduce((h, f)=>{
-    h[f] = src[f];
-    return h;
-  }, {});
+  renderImage = (image, idx) => {
+    return (
+      <img key={idx} src={image.imageinfo[0].url} alt={image.title} width="200"/>
+    );
+  };
+
+  renderImageList = (images) => {
+    return images && images.length > 0
+      ? images.map((img, idx) => this.renderImage(img,idx))
+      : 'no images'
+  };
 
   render() {
     return (
@@ -254,6 +255,9 @@ export default class AddText extends Component {
             </textarea>
           </div>
 
+          <div className="article-images">
+            { this.state.rawImages && this.state.rawImages.length } image(s)
+          </div>
           <div className="formError">{ this.state.message}</div>
 
           <LoadingButton
