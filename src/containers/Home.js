@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import './Home.css';
 
 export default class Home extends Component {
@@ -11,6 +12,7 @@ export default class Home extends Component {
   render() {
     return (
       <div className="Home">
+        <div><Link to="/add-text">Add text</Link></div>
         <div className="home--title">
           <h1>Assets List</h1>
         </div>
@@ -28,4 +30,4 @@ export default class Home extends Component {
       </div>
     );
   }
-}
+};

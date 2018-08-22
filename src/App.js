@@ -93,7 +93,7 @@ class App extends Component {
 
     return (
       this.state.isAuthenticating ?
-        <div className="authentificating-progress">authentificating...</div> :
+        <div className="authentificating-progress">authenticating...</div> :
 
         <Router>
           <div className="App">
