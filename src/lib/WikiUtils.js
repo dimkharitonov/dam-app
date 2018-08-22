@@ -58,7 +58,7 @@ export default {
       result = {
         ...this.getFieldsAsHash(fields, data),
         title: title,
-        slug: utils.getSlug(title),
+        slug: this.getLanguage(wikiPage) + '_' + utils.getSlug(title),
         origin: wikiPage,
         coordinates: JSON.stringify(data.coordinates)
       };
