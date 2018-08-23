@@ -9,7 +9,7 @@ export default {
     return domainParts.length >=3 ? domainParts[0] : 'en';
   },
 
-  getPageName: (url) => url.split('/').reverse()[0],
+  getPageName: (url) => decodeURI(url).split('/').reverse()[0],
 
   getApiUrl: (lang) => 'http://[LNG].wikipedia.org/w/api.php'.replace('[LNG]', lang),
 
