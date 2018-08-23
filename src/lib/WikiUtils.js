@@ -17,21 +17,13 @@ export default {
 
     let wikiData = {};
 
-    try {
-      wikiData = fields.map(async f => wiki({apiUrl:api}).page(page).then(page => page[f]()));
-
-      wikiData = await Promise.all(wikiData);
-
-      wikiData = fields.reduce((h, f, i) => {
-        h[f] = wikiData[i];
-        return h;
-      }, {})
-
-    } catch(e) {
-      console.log(e);
-      wikiData = {
-        error: e,
-        message: e.message
+    for (let i=0; i<fields.length; i++) {
+      const f = fields[i];
+      try {
+        wikiData[f] = await wiki({apiUrl:api}).page(page).then(page => page[f]());
+      } catch (e) {
+        console.log(`Can't get field ${f}`, e.message);
+        wikiData[f] ='';
       }
     }
 
@@ -60,7 +52,7 @@ export default {
         title: title,
         slug: this.getLanguage(wikiPage) + '_' + utils.getSlug(title),
         origin: wikiPage,
-        coordinates: JSON.stringify(data.coordinates)
+        coordinates: data.coordinates ? JSON.stringify(data.coordinates) : ''
       };
     }
     return result;
