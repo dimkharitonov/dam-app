@@ -146,6 +146,7 @@ export default class AddText extends Component {
 
   getFields = () => [
     'content',
+    'html',
     'categories',
     'fullInfo',
     'coordinates',
