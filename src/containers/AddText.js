@@ -82,7 +82,7 @@ export default class AddText extends Component {
 
             this.setState({ message: `image ${i+1} of ${document.rawImages.length}: uploading...`});
 
-            let result = await utils.storeData(imageFile, imageMeta);
+            let result = await utils.storeData(imageFile, imageMeta, false);
             relatedImages = [
               ...relatedImages,
               result.key

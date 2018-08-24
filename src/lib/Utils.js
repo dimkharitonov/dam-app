@@ -14,13 +14,33 @@ export default {
     };
   },
 
-  storeData: (body, meta) => {
+  storeData: async (body, meta, rewrite = true) => {
 
     const buildFileName = (name, extension) => name + extension;
 
+    console.log(`Trying to save ${buildFileName(meta.fileName, meta.extension)}`);
+
+    if(!rewrite) {
+      console.log('no rewrite mode, check for existence');
+
+      try {
+
+        await Storage.get(buildFileName(meta.fileName, meta.extension), {download: true});
+        await Storage.get(buildFileName(meta.fileName, '.meta'), {download: true});
+
+        console.log(`file ${meta.fileName} already exists, skip it`);
+
+        return new Promise(function(resolve, reject) {
+          resolve({key: buildFileName(meta.fileName, '.meta')});
+        });
+
+      } catch (e) {
+        console.log(`file ${meta.fileName} doesn't exists, save it`);
+      }
+    }
+
     return new Promise(function(resolve, reject) {
 
-      console.log('store document');
       Storage.put(
         buildFileName(meta.fileName, meta.extension),
         body,
@@ -29,8 +49,8 @@ export default {
         })
 
         .then(result => {
-          console.log('done', meta);
-          console.log('store meta');
+          console.log(`document ${buildFileName(meta.fileName, meta.extension)} has been saved`);
+          console.log('store meta', meta);
           return Storage.put(
             buildFileName(meta.fileName, '.meta'),
             JSON.stringify({
