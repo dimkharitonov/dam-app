@@ -35,7 +35,8 @@ export default {
     return h;
   }, {}),
 
-  getArticle: async function(wikiPage, fields) {
+  getArticle: async function(wikiPage) {
+    const fields = this.getFields();
     let result = {};
     console.log(this);
     const apiUrl = this.getApiUrl(this.getLanguage(wikiPage));
@@ -58,6 +59,90 @@ export default {
     return result;
   },
 
+  saveArticle: async function(data, progressFunc = f => f) {
+    const fields = this.getFields();
+
+    let meta = {
+      title: data.title,
+      origin: data.origin,
+      summary: data.summary,
+      categories: data.categories,
+      langlinks: data.langlinks,
+      coordinates: data.coordinates,
+      fileName: utils.getDocumentFileName(data.slug),
+      extension: '.json',
+      type: 'application/json',
+      created: Date.now()
+    };
+
+    let document = {
+      ...this.getFieldsAsHash(fields, data),
+      title: data.title
+    };
+
+    let relatedImages = [];
+
+    try {
+      // save images
+      if(document.rawImages && document.rawImages.length > 0) {
+
+        for(let i=0; i<document.rawImages.length; i++) {
+          let imageMeta = {};
+
+          try {
+            const image = document.rawImages[i];
+
+            progressFunc({ message: `image ${i+1} of ${document.rawImages.length}: fetching...`});
+            let imageFile = await this.getImage(image.imageinfo[0].url);
+
+            imageMeta = {
+              title: this.getImageTitle(image.title),
+              fileName: utils.getMediaFileName(image.pageid || this.getImageId(image.imageinfo[0].descriptionshorturl)),
+              extension: this.getImageExtension(image.imageinfo[0].url),
+              origin: image.imageinfo[0].descriptionurl,
+              source: image.imageinfo[0].url,
+              type: imageFile.type,
+              created: Date.now()
+            };
+
+            progressFunc({ message: `image ${i+1} of ${document.rawImages.length}: uploading...`});
+
+            let result = await utils.storeData(imageFile, imageMeta, false);
+            relatedImages = [
+              ...relatedImages,
+              result.key
+            ];
+          } catch (e) {
+            progressFunc({ message: `ERROR while saving image ${imageMeta}`});
+          }
+        }
+      }
+
+      // save document
+
+      progressFunc({ message: 'saving document'});
+
+      meta = {
+        ...meta,
+        relatedImages: relatedImages
+      };
+
+      console.log('document to save', document);
+
+      let result = await utils.storeData(JSON.stringify(document), meta);
+      console.log('stored successfull', result);
+      return({
+        success: true,
+      });
+    } catch (e) {
+      console.log('get error ', e);
+      return({
+        success: false,
+        error: e
+      });
+    }
+  },
+
   getImageTitle: title => title.replace(/^File:/,'').replace(/\.\w+^/, ''),
 
   getImageId: desc => desc.split('=').reverse()[0],
@@ -71,6 +156,19 @@ export default {
     } catch (e) {
       console.log(e);
     }
-  }
+  },
+
+  getFields: () => [
+    'content',
+    'html',
+    'categories',
+    'fullInfo',
+    'coordinates',
+    'langlinks',
+    'mainImage',
+    'rawImages',
+    'summary'
+  ]
+
 
 };

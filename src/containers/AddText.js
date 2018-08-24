@@ -30,92 +30,26 @@ export default class AddText extends Component {
       'handleSubmit',
       'handleChange',
       'handleWikiFetch',
-      'getFields'
+      'handleProgress'
     ].map(f => this[f] = this[f].bind(this));
 
-  }
+  };
+
+  handleProgress = (msg) => this.setState(msg);
 
   handleSubmit = async event => {
     event.preventDefault();
 
     this.setState({ isLoading: true});
 
-    let meta = {
-      title: this.state.title,
-      origin: this.state.origin,
-      summary: this.state.summary,
-      categories: this.state.categories,
-      langlinks: this.state.langlinks,
-      coordinates: this.state.coordinates,
-      fileName: utils.getDocumentFileName(this.state.slug),
-      extension: '.json',
-      type: 'application/json',
-      created: Date.now(),
-      author: this.state.author
-    };
+    let result = await wu.saveArticle(this.state, this.handleProgress);
 
-    let document = {
-      ...wu.getFieldsAsHash(this.getFields(), this.state),
-      title: this.state.title
-    };
+    console.log('Result of saving', result);
 
-    let relatedImages = [];
-
-    try {
-      // save images
-      if(document.rawImages && document.rawImages.length > 0) {
-
-        for(let i=0; i<document.rawImages.length; i++) {
-          let imageMeta = {};
-
-          try {
-            const image = document.rawImages[i];
-
-            this.setState({ message: `image ${i+1} of ${document.rawImages.length}: fetching...`});
-            let imageFile = await wu.getImage(image.imageinfo[0].url);
-
-            imageMeta = {
-              title: wu.getImageTitle(image.title),
-              fileName: utils.getMediaFileName(image.pageid || wu.getImageId(image.imageinfo[0].descriptionshorturl)),
-              extension: wu.getImageExtension(image.imageinfo[0].url),
-              origin: image.imageinfo[0].descriptionurl,
-              source: image.imageinfo[0].url,
-              type: imageFile.type,
-              created: Date.now()
-            };
-
-            this.setState({ message: `image ${i+1} of ${document.rawImages.length}: uploading...`});
-
-            let result = await utils.storeData(imageFile, imageMeta, false);
-            relatedImages = [
-              ...relatedImages,
-              result.key
-            ];
-          } catch (e) {
-            this.setState({ message: `ERROR while saving image ${imageMeta}`});
-          }
-        }
-      }
-
-      // save document
-
-      this.setState({ message: 'saving document'});
-
-      meta = {
-        ...meta,
-        relatedImages: relatedImages
-      };
-
-      console.log('document to save', document);
-
-      let result = await utils.storeData(JSON.stringify(document), meta);
-      console.log('stored successfull', result);
-      this.setState({ isLoading: false, message: 'Saved successfully' });
-    } catch (e) {
-      console.log('get error ', e);
-      this.setState({ isLoading: false, message: `ERROR: ${e.message}` });
-    }
-
+    this.setState(
+      { isLoading: false,
+        message: result.success ? 'Saved successfully' : `ERROR: ${result.error.message}`
+      });
   };
 
   handleChange = event => {
@@ -138,7 +72,7 @@ export default class AddText extends Component {
 
     this.setState({isFetching: true});
 
-    const data = await wu.getArticle(wikiPage, this.getFields());
+    const data = await wu.getArticle(wikiPage);
 
     this.setState({
       ...data,
@@ -148,17 +82,6 @@ export default class AddText extends Component {
 
   };
 
-  getFields = () => [
-    'content',
-    'html',
-    'categories',
-    'fullInfo',
-    'coordinates',
-    'langlinks',
-    'mainImage',
-    'rawImages',
-    'summary'
-  ];
 
   renderImage = (image, idx) => {
     return (
