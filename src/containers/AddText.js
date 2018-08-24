@@ -42,8 +42,12 @@ export default class AddText extends Component {
 
     let meta = {
       title: this.state.title,
-      fileName: utils.getDocumentFileName(this.state.slug),
       origin: this.state.origin,
+      summary: this.state.summary,
+      categories: this.state.categories,
+      langlinks: this.state.langlinks,
+      coordinates: this.state.coordinates,
+      fileName: utils.getDocumentFileName(this.state.slug),
       extension: '.json',
       type: 'application/json',
       created: Date.now(),
