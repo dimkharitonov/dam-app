@@ -1,5 +1,5 @@
 import { slugify as sg } from 'transliteration';
-import { Storage } from 'aws-amplify';
+import { Storage, API } from 'aws-amplify';
 
 export default {
   getSlug: (fileName) => sg(fileName, { unknown: '_' }),
@@ -14,7 +14,7 @@ export default {
     };
   },
 
-  storeData: async (body, meta, rewrite = true) => {
+  storeData: async function (body, meta, rewrite = true) {
 
     const buildFileName = (name, extension) => name + extension;
 
@@ -25,13 +25,16 @@ export default {
 
       try {
 
-        await Storage.get(buildFileName(meta.fileName, meta.extension), {download: true});
-        await Storage.get(buildFileName(meta.fileName, '.meta'), {download: true});
+        const metafile = await this.getAsset(meta.fileName);
+        console.log('API', metafile);
 
         console.log(`file ${meta.fileName} already exists, skip it`);
 
         return new Promise(function(resolve, reject) {
-          resolve({key: buildFileName(meta.fileName, '.meta')});
+          resolve({
+            ...metafile,
+            key: buildFileName(meta.fileName, '.meta')
+          });
         });
 
       } catch (e) {
@@ -39,7 +42,7 @@ export default {
       }
     }
 
-    return new Promise(function(resolve, reject) {
+    return new Promise( (function(resolve, reject) {
 
       Storage.put(
         buildFileName(meta.fileName, meta.extension),
@@ -51,6 +54,7 @@ export default {
         .then(result => {
           console.log(`document ${buildFileName(meta.fileName, meta.extension)} has been saved`);
           console.log('store meta', meta);
+
           return Storage.put(
             buildFileName(meta.fileName, '.meta'),
             JSON.stringify({
@@ -63,8 +67,16 @@ export default {
         })
 
         .then(result => {
+          console.log('Save to API');
+          return this.createAsset(meta);
+        })
+
+        .then(result => {
           console.log('all done', result);
-          resolve(result);
+          resolve({
+            ...result,
+            key: buildFileName(meta.fileName, '.meta')
+          });
         })
 
         .catch(e => {
@@ -72,6 +84,26 @@ export default {
           reject(e);
         });
 
+    }).bind(this) );
+  },
+
+  getAsset: fileName => {
+    return API.get('assets', `/assets/${encodeURIComponent(fileName)}`, {});
+  },
+
+  createAsset: asset => {
+    return API.post('assets', '/assets/', {
+      body: asset
+    })
+  },
+
+  listAssets: () => {
+    return API.get('assets', `/assets`, {});
+  },
+
+  updateAsset: (fileName, asset) => {
+    return API.put("notes", `/assets/${encodeURIComponent(fileName)}`, {
+      body: asset
     });
   }
 }

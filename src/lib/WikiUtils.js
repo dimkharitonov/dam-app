@@ -129,8 +129,10 @@ export default {
 
       console.log('document to save', document);
 
-      let result = await utils.storeData(JSON.stringify(document), meta);
-      console.log('stored successfull', result);
+      await utils.storeData(JSON.stringify(document), meta);
+
+      console.log('stored successfull');
+
       return({
         success: true,
       });
