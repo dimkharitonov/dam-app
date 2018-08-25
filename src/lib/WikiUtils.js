@@ -145,7 +145,7 @@ export default {
     }
   },
 
-  getImageTitle: title => title.replace(/^File:/,'').replace(/\.\w+^/, ''),
+  getImageTitle: title => title.replace(/^File:/,'').replace(/\.\w+$/, ''),
 
   getImageId: desc => desc.split('=').reverse()[0],
 
