@@ -7,3 +7,49 @@
 .home--title h1 {
   margin-bottom: 0;
 }
+
+.assets-list {
+  width: 90%;
+  margin: 1rem auto;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: rgba(0,0,0,0.79);
+}
+
+.assets-list--asset {
+  width: 100%;
+  margin: 0.25rem 0;
+  border-bottom: solid 1px #DDD;
+}
+
+.asset--meta {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.asset--meta li {
+  display: inline-block;
+  padding: 0 0.25rem;
+}
+
+.asset--summary, .asset--preview   {
+  padding: 0 0.25rem
+}
+
+.meta--title {
+  font-weight: bold;
+  width: calc(60% - 9rem);
+}
+
+.meta--type {
+  width: 7rem;
+}
+
+.meta--file {
+  width: 20%;
+}
+
+.meta--coordinates {
+  width:20%;
+}

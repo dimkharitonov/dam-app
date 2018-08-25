@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
+import Utils from './lib/Utils';
 
 import './App.css';
 
@@ -57,10 +58,19 @@ class App extends Component {
         if(this._isMounted) {
           this.userHasAuthenticated(true);
         }
+
+        try {
+          const assets = await Utils.listAssets();
+          if(this._isMounted) {
+            this.setState({ assets });
+          }
+        } catch (e) {
+          console.log('error while getting assets list', e);
+        }
       }
     } catch(e) {
       if(e !== 'No current user') {
-        alert(e);
+        console.log('Authenticating error', e);
       }
     }
 
