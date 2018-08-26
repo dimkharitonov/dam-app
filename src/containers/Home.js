@@ -12,6 +12,14 @@ export default class Home extends Component {
   renderAssetsList() {
     return (
       <div className="assets-list">
+        <div className="assets-list--asset" key="headerrow">
+          <ul className="asset--meta meta--header">
+            <li className="meta--title">title</li>
+            <li className="meta--type">type</li>
+            <li className="meta--file">file</li>
+            <li className="meta--coordinates">coordinates</li>
+          </ul>
+        </div>
         {this.assets.map(asset => this.renderAsset(asset))}
       </div>
     );
