@@ -66,7 +66,7 @@ export default class Home extends Component {
   render() {
     return (
       <div className="Home">
-        <div><Link to="/add-text">New document</Link></div>
+        <div className="navbar"><Link className="navbutton" to="/add-text">New document</Link> <Link className="navbutton" to="/import-wiki-articles">Import Wiki Articles</Link></div>
         <div className="home--title">
           <h1>Assets List</h1>
         </div>
