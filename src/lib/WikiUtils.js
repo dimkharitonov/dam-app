@@ -59,14 +59,17 @@ export default {
     return result;
   },
 
-  saveArticle: async function(data, progressFunc = f => f) {
+  saveArticle: async function(data, progressFunc = f => f, extraCategories={}) {
     const fields = this.getFields();
 
     let meta = {
       title: data.title,
       origin: data.origin,
       summary: data.summary,
-      categories: data.categories,
+      categories: [
+        ...data.categories,
+        ...extraCategories
+      ],
       langlinks: data.langlinks,
       coordinates: data.coordinates,
       fileName: utils.getDocumentFileName(data.slug),

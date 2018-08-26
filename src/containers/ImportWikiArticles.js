@@ -51,20 +51,35 @@ export default class ImportWikiArticles extends Component {
   handleProgress = (msg) => this.setState(msg);
 
   async importItems() {
-    this.setState(
-      {
-        itemList: this.state.itemList.map(item => ({
-          ...item,
-          status: 'pending...'
-        })),
-      }
-    );
+
+    const getCategoriesList = () => [
+      'Category',
+      'Type',
+      'Location',
+      'Category_ru',
+      'Tag'
+    ];
+
+    const splitCategory = (category) => category.split(',').map(c => c.trim());
+    const addPrefix = (categoryName, categories) => categories.map(c => categoryName + ':' + c);
+
+    const getExtraCategories = (item) => getCategoriesList()
+      .map(c =>
+        item[c.toLowerCase()]
+          ? addPrefix(c, splitCategory(item[c.toLowerCase()]))
+          : []
+      )
+      .reduce((acc, val) => acc.concat(val), []);
+
 
     for(let i=0; i<this.state.itemList.length; i++) {
       if(!this.state.itemList[i].url) {
         continue
       }
-      
+
+      console.log('extra', getExtraCategories(this.state.itemList[i]));
+
+
       console.log(`import item ${this.state.itemList[i].url}`);
 
       console.log('fetching from wiki...');
@@ -85,7 +100,7 @@ export default class ImportWikiArticles extends Component {
         }))
       });
 
-      let result = await wu.saveArticle(data, this.handleProgress);
+      let result = await wu.saveArticle(data, this.handleProgress, getExtraCategories(this.state.itemList[i]));
       console.log('done', result);
 
       this.setState({
