@@ -4,6 +4,9 @@ import utils from "../lib/Utils";
 import Papa from 'papaparse';
 import wu from '../lib/WikiUtils';
 import LoadingButton from '../ui/LoadingButton';
+import {Link} from "react-router-dom";
+import { FaChevronLeft } from 'react-icons/fa';
+
 
 export default class ImportWikiArticles extends Component {
   constructor(props) {
@@ -191,6 +194,7 @@ export default class ImportWikiArticles extends Component {
   render() {
     return (
       <div className="import-wiki">
+        <div className="navbar"><Link className="navbutton" to="/"><FaChevronLeft/> Back</Link></div>
         {
           this.state.itemList.length > 0
             ? this.renderImportForm()

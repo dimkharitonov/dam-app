@@ -1,10 +1,10 @@
 .addtext-form {
   width: 80%;
-  margin: 5rem auto 2rem;
+  margin: 2.5rem auto 2rem;
 }
 
 .form-field.with-button input {
-  width: calc(100% - 13.5rem - 2px);
+  width: calc(100% - 14.25rem - 2px);
   min-width: 16rem;
   margin-right: 1rem;
 }

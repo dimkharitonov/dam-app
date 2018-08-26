@@ -4,6 +4,7 @@ import './AddText.css';
 import LoadingButton from "../ui/LoadingButton";
 import utils from '../lib/Utils';
 import wu from '../lib/WikiUtils';
+import { FaChevronLeft } from 'react-icons/fa';
 
 
 export default class AddText extends Component {
@@ -98,6 +99,7 @@ export default class AddText extends Component {
   render() {
     return (
       <div className="addtext-form">
+        <div className="navbar"><Link className="navbutton" to="/"><FaChevronLeft/> Back</Link></div>
         <form onSubmit={this.handleSubmit}>
           <div className="form-field with-button">
             <label htmlFor="wikiPage">Wiki Page URL</label>
