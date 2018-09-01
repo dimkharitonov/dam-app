@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Link } from 'react-router-dom';
 import Routes from './Routes';
 import { Auth } from 'aws-amplify';
-import Utils from './lib/Utils';
 
 import './App.css';
 
@@ -11,41 +10,7 @@ class App extends Component {
     super(props);
     this.state = {
       isAuthenticated: false,
-      isAuthenticating: true,
-      assets: [
-        {
-          id: 'XXXX-XXXX-XXXX-XX01',
-          name: 'superfile image contains cats.jpg',
-          type: 'image',
-          modified: '2018-05-05 12:34',
-          author: 'John Smith',
-          size: '1.5Mb'
-        },
-        {
-          id: 'XXXX-XXXX-XXXX-XX02',
-          name: 'superfile image contains cats.jpg',
-          type: 'image',
-          modified: '2018-05-05 12:34',
-          author: 'John Smith',
-          size: '1.5Mb'
-        },
-        {
-          id: 'XXXX-XXXX-XXXX-XX03',
-          name: 'superfile image contains cats.jpg',
-          type: 'image',
-          modified: '2018-05-05 12:34',
-          author: 'John Smith',
-          size: '1.5Mb'
-        },
-        {
-          id: 'XXXX-XXXX-XXXX-XX04',
-          name: 'superfile image contains cats.jpg',
-          type: 'image',
-          modified: '2018-05-05 12:34',
-          author: 'John Smith',
-          size: '1.5Mb'
-        }
-      ]
+      isAuthenticating: true
     };
 
     this._isMounted = false;
@@ -57,15 +22,6 @@ class App extends Component {
       if(await Auth.currentSession()) {
         if(this._isMounted) {
           this.userHasAuthenticated(true);
-        }
-
-        try {
-          const assets = await Utils.listAssets();
-          if(this._isMounted) {
-            this.setState({ assets });
-          }
-        } catch (e) {
-          console.log('error while getting assets list', e);
         }
       }
     } catch(e) {
@@ -97,10 +53,9 @@ class App extends Component {
   render() {
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
-      userHasAuthenticated: this.userHasAuthenticated.bind(this),
-      assets: this.state.assets
+      userHasAuthenticated: this.userHasAuthenticated.bind(this)
     };
-
+    console.log('render', this.state.assets);
     return (
       this.state.isAuthenticating ?
         <div className="authentificating-progress">authenticating...</div> :

@@ -76,3 +76,26 @@
 .meta--coordinates {
   width:20%;
 }
+
+.list-tabs {
+  width: 100%;
+  margin: 1rem;
+  text-align: center;
+}
+
+.list-tabs--tab {
+  width: 10rem;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #333333;
+  display: inline-block;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid white;
+}
+
+.tab__selected {
+  border-bottom: 2px solid blue;
+  color: blue;
+}

@@ -1,13 +1,60 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
+import Utils from "../lib/Utils";
 
 export default class Home extends Component {
   constructor(props) {
     super(props);
 
-    this.assets = [...props.assets];
+    this.state = {
+      type: 'documents',
+      assets: []
+    };
+
+    this._isMounted = false;
+    this.loadAssets = this.loadAssets.bind(this);
+    this.onChangeType = this.onChangeType.bind(this);
   }
+
+  onChangeType(event) {
+    this.loadAssets(event.target.getAttribute('data-type') || 'documents');
+  }
+
+  getSelectedState(type) {
+    return type === this.state.type ? 'tab__selected' : '';
+  }
+
+  loadAssets = async (fileType='documents') => {
+    console.log('load assets ', fileType);
+    try {
+      const assets = await Utils.listAssets(fileType);
+      console.log('got', assets);
+      if(this._isMounted) {
+        console.log('set state ');
+        this.setState({
+          assets,
+          type: fileType
+        });
+      }
+    } catch (e) {
+      console.log('error while getting assets list', e);
+    }
+  };
+
+  componentDidMount = async () => {
+    this._isMounted = true;
+    try {
+      await this.loadAssets('documents');
+    } catch(e) {
+      console.log('Error while getting assets', e);
+    }
+  };
+
+  componentWillUnmount = () => {
+    this._isMounted = false;
+  };
+
 
   renderAssetsList() {
     return (
@@ -20,7 +67,7 @@ export default class Home extends Component {
             <li className="meta--coordinates">coordinates</li>
           </ul>
         </div>
-        {this.assets.map(asset => this.renderAsset(asset))}
+        {this.state.assets.map(asset => this.renderAsset(asset))}
       </div>
     );
   }
@@ -45,8 +92,6 @@ export default class Home extends Component {
         : '-';
     };
 
-    console.log(`coord: ${lat}, ${lon}`);
-
     return(
       <div className="assets-list--asset" key={fileName}>
         <ul className="asset--meta">
@@ -64,13 +109,22 @@ export default class Home extends Component {
   }
 
   render() {
+    console.log('home render', this.assets);
     return (
       <div className="Home">
         <div className="navbar"><Link className="navbutton" to="/add-text">New document</Link> <Link className="navbutton" to="/import-wiki-articles">Import Wiki Articles</Link></div>
         <div className="home--title">
           <h1>Assets List</h1>
+          <div className="list-tabs">
+            <div className={'list-tabs--tab ' + this.getSelectedState('documents')} data-type="documents" onClick={this.onChangeType}>
+              Documents
+            </div>
+            <div className={'list-tabs--tab ' + this.getSelectedState('media')} data-type="media" onClick={this.onChangeType}>
+              Media
+            </div>
+          </div>
         </div>
-        { this.assets.length > 0 ? this.renderAssetsList() : this.renderLander() }
+        { this.state.assets.length > 0 ? this.renderAssetsList() : this.renderLander() }
       </div>
     );
   }

@@ -92,17 +92,18 @@ export default {
   },
 
   createAsset: asset => {
+    console.log('API create', asset);
     return API.post('assets', '/assets/', {
       body: asset
     })
   },
 
-  listAssets: () => {
-    return API.get('assets', `/assets`, {});
+  listAssets: fileType => {
+    return API.get('assets', `/assets/list/${encodeURIComponent(fileType)}`, {});
   },
 
   updateAsset: (fileName, asset) => {
-    return API.put("notes", `/assets/${encodeURIComponent(fileName)}`, {
+    return API.put("assets", `/assets/${encodeURIComponent(fileName)}`, {
       body: asset
     });
   }

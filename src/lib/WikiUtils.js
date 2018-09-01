@@ -63,15 +63,15 @@ export default {
     const fields = this.getFields();
 
     let meta = {
-      title: data.title,
-      origin: data.origin,
-      summary: data.summary,
+      title: data.title || 'noname' + Date.now(),
+      origin: data.origin || null,
+      summary: data.summary || null,
       categories: [
-        ...data.categories,
+        ...data.categories || [],
         ...extraCategories
       ],
-      langlinks: data.langlinks,
-      coordinates: data.coordinates,
+      langlinks: data.langlinks || [],
+      coordinates: data.coordinates || null,
       fileName: utils.getDocumentFileName(data.slug),
       extension: '.json',
       type: 'application/json',
