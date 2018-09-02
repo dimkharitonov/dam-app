@@ -115,6 +115,16 @@ export default {
               ...relatedImages,
               result.key
             ];
+
+            // create thumbnails
+            if(!result.exist && ['.jpg','.jpeg','.png'].reduce(
+              (acc, val) => acc || val === imageMeta.extension.toLowerCase(),
+              false
+            )) {
+              await utils.resizeImage([imageMeta.fileName, imageMeta.extension].join(''), [240, 640]);
+            } else {
+              console.log('THUMBNAILS: file exist or wrong extension', result.exist, imageMeta.extension);
+            }
           } catch (e) {
             progressFunc({ message: `ERROR while saving image ${imageMeta}`});
           }

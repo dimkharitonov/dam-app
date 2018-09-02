@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
-import Utils from "../lib/Utils";
+import Utils from '../lib/Utils';
+import wu from '../lib/WikiUtils';
+import { FaSpinner } from 'react-icons/fa';
+import { S3Image } from 'aws-amplify-react'
+
 
 export default class Home extends Component {
   constructor(props) {
@@ -9,7 +13,8 @@ export default class Home extends Component {
 
     this.state = {
       type: 'documents',
-      assets: []
+      assets: [],
+      isLoaded: false
     };
 
     this._isMounted = false;
@@ -18,11 +23,22 @@ export default class Home extends Component {
   }
 
   onChangeType(event) {
+    this.setState({ isLoaded: false });
     this.loadAssets(event.target.getAttribute('data-type') || 'documents');
   }
 
   getSelectedState(type) {
     return type === this.state.type ? 'tab__selected' : '';
+  }
+
+  getImageKey(file, extension) {
+    const filePrefix = ['.jpg','.jpeg','.png'].reduce((acc, val) =>  acc || val === extension.toLowerCase() , false)
+      ? 'thumbnails/240/'
+      : 'media/';
+
+    const imageKey = [filePrefix, file, extension].join('');
+    console.log('THUMBNAILS: ', imageKey);
+    return imageKey;
   }
 
   loadAssets = async (fileType='documents') => {
@@ -34,7 +50,8 @@ export default class Home extends Component {
         console.log('set state ');
         this.setState({
           assets,
-          type: fileType
+          type: fileType,
+          isLoaded: true
         });
       }
     } catch (e) {
@@ -62,9 +79,11 @@ export default class Home extends Component {
         <div className="assets-list--asset" key="headerrow">
           <ul className="asset--meta meta--header">
             <li className="meta--title">title</li>
-            <li className="meta--type">type</li>
+            <li className="meta--type">locale</li>
             <li className="meta--file">file</li>
             <li className="meta--coordinates">coordinates</li>
+            <li className="meta--type">Images</li>
+            <li className="meta--type">Created</li>
           </ul>
         </div>
         {this.state.assets.map(asset => this.renderAsset(asset))}
@@ -80,8 +99,15 @@ export default class Home extends Component {
     );
   }
 
-  renderAsset({fileName, extension, title, categories, coordinates, summary}) {
-    const [ftype, fname] = fileName.split('/');
+  renderLoading() {
+    return(
+      <div className="assets__loading">
+        <FaSpinner className="spinning" /> loading...
+      </div>
+    );
+  }
+
+  renderAsset({fileName, fileType, origin, extension, title, categories, coordinates, summary, relatedImages, created}) {
     const { lat, lon } = coordinates ? JSON.parse(coordinates) : {};
 
     const formatCoordiates = (lat, lon) => {
@@ -96,13 +122,17 @@ export default class Home extends Component {
       <div className="assets-list--asset" key={fileName}>
         <ul className="asset--meta">
           <li className="meta--title">{title}</li>
-          <li className="meta--type">{ftype}</li>
-          <li className="meta--file">{fname}{extension}</li>
+          <li className="meta--type">{ origin && wu.getLanguage(origin)}</li>
+          <li className="meta--file">{fileName}{extension}</li>
           <li className="meta--coordinates">{ formatCoordiates(lat, lon) }</li>
+          <li className="meta--type">{ Array.isArray(relatedImages) ? relatedImages.length : '-' }</li>
+          <li className="meta--type">{ new Date(created).toLocaleDateString() }</li>
         </ul>
-        { ftype === 'documents'
-          ? <div className="asset--summary">{summary.substr(0, Math.min(128, summary.length))}...</div>
-          : <div className="asset--preview">image preview</div>
+        { fileType === 'documents'
+          ? <div className="asset--summary">{summary}</div>
+          : <div className="asset--preview">
+            <S3Image imgKey={this.getImageKey(fileName, extension)} />
+            </div>
         }
       </div>
     );
@@ -124,7 +154,10 @@ export default class Home extends Component {
             </div>
           </div>
         </div>
-        { this.state.assets.length > 0 ? this.renderAssetsList() : this.renderLander() }
+        { this.state.isLoaded
+          ? (this.state.assets.length > 0 ? this.renderAssetsList() : this.renderLander())
+          : this.renderLoading()
+        }
       </div>
     );
   }

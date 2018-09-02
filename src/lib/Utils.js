@@ -33,7 +33,8 @@ export default {
         return new Promise(function(resolve, reject) {
           resolve({
             ...metafile,
-            key: buildFileName(meta.fileName, '.meta')
+            key: buildFileName(meta.fileName, '.meta'),
+            exist: true
           });
         });
 
@@ -106,5 +107,11 @@ export default {
     return API.put("assets", `/assets/${encodeURIComponent(fileName)}`, {
       body: asset
     });
+  },
+
+  resizeImage: (fileName, dimensions) => {
+    return API.put("assets", `/assets/resize/${encodeURIComponent(fileName)}`,{
+      body: { dimensions }
+    })
   }
 }
