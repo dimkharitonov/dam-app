@@ -23,8 +23,10 @@ export default class Home extends Component {
   }
 
   onChangeType(event) {
-    this.setState({ isLoaded: false });
-    this.loadAssets(event.target.getAttribute('data-type') || 'documents');
+    const type = event.target.getAttribute('data-type') || 'documents';
+
+    this.setState({ isLoaded: false, type });
+    this.loadAssets(type);
   }
 
   getSelectedState(type) {
@@ -44,7 +46,7 @@ export default class Home extends Component {
   loadAssets = async (fileType='documents') => {
     console.log('load assets ', fileType);
     try {
-      const assets = await Utils.listAssets(fileType);
+      const assets = await Utils.listAssets(fileType === 'media' ? fileType : 'documents');
       console.log('got', assets);
       if(this._isMounted) {
         console.log('set state ');
@@ -72,8 +74,26 @@ export default class Home extends Component {
     this._isMounted = false;
   };
 
+  renderAssets() {
+    switch (this.state.type) {
+      case 'media':
+        return this.renderMediaList();
+      case 'map':
+        return this.renderMap();
+      default:
+        return this.renderDocumentList();
+    }
+  }
 
-  renderAssetsList() {
+  renderMap() {
+    return (
+      <div className="assets-map">
+        map
+      </div>
+    );
+  }
+
+  renderDocumentList() {
     return (
       <div className="assets-list">
         <div className="assets-list--asset" key="headerrow">
@@ -86,7 +106,15 @@ export default class Home extends Component {
             <li className="meta--type">Created</li>
           </ul>
         </div>
-        {this.state.assets.map(asset => this.renderAsset(asset))}
+        {this.state.assets.map(asset => this.renderDocument(asset))}
+      </div>
+    );
+  }
+
+  renderMediaList() {
+    return(
+      <div className="media-cards">
+        {this.state.assets.map(asset => this.renderMedia(asset))}
       </div>
     );
   }
@@ -107,7 +135,7 @@ export default class Home extends Component {
     );
   }
 
-  renderAsset({fileName, fileType, origin, extension, title, categories, coordinates, summary, relatedImages, created}) {
+  renderDocument({fileName, fileType, origin, extension, title, categories, coordinates, summary, relatedImages, created}) {
     const { lat, lon } = coordinates ? JSON.parse(coordinates) : {};
 
     const formatCoordiates = (lat, lon) => {
@@ -128,14 +156,24 @@ export default class Home extends Component {
           <li className="meta--type">{ Array.isArray(relatedImages) ? relatedImages.length : '-' }</li>
           <li className="meta--type">{ new Date(created).toLocaleDateString() }</li>
         </ul>
-        { fileType === 'documents'
-          ? <div className="asset--summary">{summary}</div>
-          : <div className="asset--preview">
-            <S3Image imgKey={this.getImageKey(fileName, extension)} />
-            </div>
-        }
+        <div className="asset--summary">{summary}</div>
       </div>
     );
+  }
+
+  renderMedia({fileName, extension, title, created}) {
+    return(
+      <div className="media-cards--card">
+        <div className="card--info">
+          <h2 className="info--title">{title}</h2>
+          <p className="info--details">File {fileName}{extension}</p>
+          <p className="info--details">Created { new Date(created).toLocaleDateString() }</p>
+        </div>
+        <div className="card--preview">
+          <S3Image imgKey={this.getImageKey(fileName, extension)} />
+        </div>
+      </div>
+    )
   }
 
   render() {
@@ -144,7 +182,7 @@ export default class Home extends Component {
       <div className="Home">
         <div className="navbar"><Link className="navbutton" to="/add-text">New document</Link> <Link className="navbutton" to="/import-wiki-articles">Import Wiki Articles</Link></div>
         <div className="home--title">
-          <h1>Assets List</h1>
+          <h1>Assets</h1>
           <div className="list-tabs">
             <div className={'list-tabs--tab ' + this.getSelectedState('documents')} data-type="documents" onClick={this.onChangeType}>
               Documents
@@ -152,10 +190,13 @@ export default class Home extends Component {
             <div className={'list-tabs--tab ' + this.getSelectedState('media')} data-type="media" onClick={this.onChangeType}>
               Media
             </div>
+            <div className={'list-tabs--tab ' + this.getSelectedState('map')} data-type="map" onClick={this.onChangeType}>
+              Map
+            </div>
           </div>
         </div>
         { this.state.isLoaded
-          ? (this.state.assets.length > 0 ? this.renderAssetsList() : this.renderLander())
+          ? (this.state.assets.length > 0 ? this.renderAssets() : this.renderLander())
           : this.renderLoading()
         }
       </div>
