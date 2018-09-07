@@ -5,7 +5,7 @@ import Utils from '../lib/Utils';
 import wu from '../lib/WikiUtils';
 import { FaSpinner } from 'react-icons/fa';
 import { S3Image } from 'aws-amplify-react'
-
+import { HomeMap } from './HomeMap';
 
 export default class Home extends Component {
   constructor(props) {
@@ -88,7 +88,7 @@ export default class Home extends Component {
   renderMap() {
     return (
       <div className="assets-map">
-        map
+        <HomeMap isMarkerShown assets={this.state.assets}/>
       </div>
     );
   }
@@ -163,7 +163,7 @@ export default class Home extends Component {
 
   renderMedia({fileName, extension, title, created}) {
     return(
-      <div className="media-cards--card">
+      <div className="media-cards--card" key={fileName}>
         <div className="card--info">
           <h2 className="info--title">{title}</h2>
           <p className="info--details">File {fileName}{extension}</p>
