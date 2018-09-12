@@ -14,7 +14,8 @@ export default class Home extends Component {
     this.state = {
       type: 'documents',
       assets: [],
-      isLoaded: false
+      isLoaded: false,
+      message: ''
     };
 
     this._isMounted = false;
@@ -57,6 +58,10 @@ export default class Home extends Component {
         });
       }
     } catch (e) {
+      this.setState({
+        isLoaded:true,
+        message: `error while getting assets list ${e.message}`
+      });
       console.log('error while getting assets list', e);
     }
   };
@@ -123,6 +128,11 @@ export default class Home extends Component {
     return(
       <div className="lander-page">
         <h2>no assets for awhile</h2>
+        {
+          this.state.message
+            ? <p>{ this.state.message }</p>
+            : ''
+        }
       </div>
     );
   }
