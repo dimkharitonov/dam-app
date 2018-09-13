@@ -20,7 +20,11 @@ export default {
     for (let i=0; i<fields.length; i++) {
       const f = fields[i];
       try {
-        wikiData[f] = await wiki({apiUrl:api}).page(page).then(page => page[f]());
+        wikiData[f] = await wiki({
+            apiUrl:api,
+            origin: '*'
+          })
+          .page(page).then(page => page[f]());
       } catch (e) {
         console.log(`Can't get field ${f}`, e.message);
         wikiData[f] ='';
