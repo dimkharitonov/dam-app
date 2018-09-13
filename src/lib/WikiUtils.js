@@ -11,7 +11,7 @@ export default {
 
   getPageName: (url) => decodeURI(url).split('/').reverse()[0],
 
-  getApiUrl: (lang) => 'http://[LNG].wikipedia.org/w/api.php'.replace('[LNG]', lang),
+  getApiUrl: (lang) => 'https://[LNG].wikipedia.org/w/api.php'.replace('[LNG]', lang),
 
   fetchPage: async (api, page, fields) => {
 
