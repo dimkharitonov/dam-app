@@ -23,11 +23,7 @@ export const HomeMap = compose(
           return { lat: (coordinates && coordinates.lat) || undefined, lng: (coordinates && coordinates.lon) || undefined };
         })
         .filter( ({lat, lng }) => lat && lng )
-        .map(({lat, lng }) => {
-        console.log('coordinates', { lat, lng });
-        return(
-        <Marker position={ {lat, lng } } key={lat+lng}/>
-      )} )
+        .map(({lat, lng }, idx) => <Marker position={ {lat, lng } } key={lat+lng+idx}/> )
       }
   </GoogleMap>
 );
