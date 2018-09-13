@@ -40,7 +40,6 @@ export default class Home extends Component {
       : 'media/';
 
     const imageKey = [filePrefix, file, extension].join('');
-    console.log('THUMBNAILS: ', imageKey);
     return imageKey;
   }
 
@@ -119,7 +118,10 @@ export default class Home extends Component {
   renderMediaList() {
     return(
       <div className="media-cards">
-        {this.state.assets.map(asset => this.renderMedia(asset))}
+        <div className="page-nav">
+          Total { this.state.assets.length } assets. Show 1–100
+        </div>
+        {this.state.assets.splice(0,Math.min(100, this.state.assets.length)).map(asset => this.renderMedia(asset))}
       </div>
     );
   }
@@ -156,6 +158,11 @@ export default class Home extends Component {
         : '-';
     };
 
+    const reduceTextByWordsCount = (text, count) => {
+      const words = (text && text.split(' ')) || [];
+      return words.slice(0, Math.min(count, words.length)).join(' ') + (count < words.length ? '...' : '');
+    };
+
     return(
       <div className="assets-list--asset" key={fileName}>
         <ul className="asset--meta">
@@ -166,7 +173,7 @@ export default class Home extends Component {
           <li className="meta--type">{ Array.isArray(relatedImages) ? relatedImages.length : '-' }</li>
           <li className="meta--type">{ new Date(created).toLocaleDateString() }</li>
         </ul>
-        <div className="asset--summary">{summary}</div>
+        <div className="asset--summary">{ reduceTextByWordsCount(summary, 18) }</div>
       </div>
     );
   }
