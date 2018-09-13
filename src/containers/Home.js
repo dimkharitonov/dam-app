@@ -12,6 +12,7 @@ export default class Home extends Component {
     super(props);
 
     this.state = {
+      typeToLoad: 'documents',
       type: 'documents',
       assets: [],
       isLoaded: false,
@@ -25,9 +26,16 @@ export default class Home extends Component {
 
   onChangeType(event) {
     const type = event.target.getAttribute('data-type') || 'documents';
+    const typeToLoad = type === 'media' ? 'media' : 'documents';
 
-    this.setState({ isLoaded: false, type });
-    this.loadAssets(type);
+    if(this.state.typeToLoad !== typeToLoad) {
+      this.setState({ isLoaded: false, typeToLoad, type });
+      this.loadAssets(typeToLoad);
+    } else {
+      this.setState(
+        { type }
+      )
+    }
   }
 
   getSelectedState(type) {
