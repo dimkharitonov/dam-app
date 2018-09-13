@@ -85,6 +85,8 @@ export default {
           reject(e);
         });
 
+      // clear data
+      body = null;
     }).bind(this) );
   },
 

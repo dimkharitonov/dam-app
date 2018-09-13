@@ -42,7 +42,6 @@ export default {
   getArticle: async function(wikiPage) {
     const fields = this.getFields();
     let result = {};
-    console.log(this);
     const apiUrl = this.getApiUrl(this.getLanguage(wikiPage));
     const pageName = this.getPageName(wikiPage);
 
@@ -63,7 +62,7 @@ export default {
     return result;
   },
 
-  saveArticle: async function(data, progressFunc = f => f, extraCategories={}) {
+  saveArticle: async function(data, progressFunc = f => f, extraCategories=[]) {
     const fields = this.getFields();
 
     let meta = {
@@ -71,7 +70,7 @@ export default {
       origin: data.origin || null,
       summary: data.summary || null,
       categories: [
-        ...data.categories || [],
+        ...(data.categories || []),
         ...extraCategories
       ],
       langlinks: data.langlinks || [],
@@ -119,6 +118,9 @@ export default {
               ...relatedImages,
               result.key
             ];
+
+            // clear data
+            imageFile = null;
 
             // create thumbnails
             if(!result.exist && ['.jpg','.jpeg','.png'].reduce(
@@ -184,6 +186,8 @@ export default {
     'fullInfo',
     'coordinates',
     'langlinks',
+    'links',
+    'backlinks',
     'mainImage',
     'rawImages',
     'summary'
