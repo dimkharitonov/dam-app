@@ -7,6 +7,7 @@ import Loading from '../ui/Loading';
 import DocumentList from '../ui/DocumentList';
 import MediaList from '../ui/MediaList';
 import HomeTabs from '../ui/HomeTabs';
+import TaxonomiesStat from '../ui/TaxonomiesStat';
 
 export default class Home extends Component {
   constructor(props) {
@@ -131,6 +132,8 @@ export default class Home extends Component {
         return <MediaList assets={this.state.assets}/>;
       case 'map':
         return this.renderMap();
+      case 'cats':
+        return <TaxonomiesStat stats={this.state.categories}/>
       default:
         return <DocumentList assets={this.state.assets}/>;
     }

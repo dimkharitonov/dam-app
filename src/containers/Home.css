@@ -183,3 +183,35 @@
 .assets-map {
   width: calc(100% - 2rem);
 }
+
+.taxonomy-stat {
+  margin: 0 2rem;
+  width: calc(100% - 6rem);
+}
+
+.taxonomy {
+  margin: 2rem 0;
+}
+
+.taxonomy--title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.taxonomy--entries {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.taxonomy--entry {
+  border-bottom: solid 1px #DDD;
+  position: relative;
+}
+
+.entry--value {
+  position: absolute;
+  right: 0;
+}

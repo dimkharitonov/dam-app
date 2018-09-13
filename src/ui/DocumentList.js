@@ -3,6 +3,9 @@ import Document from './Document';
 
 export default ({assets}) =>
   <div className="assets-list">
+    <div className="page-nav">
+      Total { assets.length } assets.
+    </div>
     <div className="assets-list--asset" key="headerrow">
       <ul className="asset--meta meta--header">
         <li className="meta--title">title</li>

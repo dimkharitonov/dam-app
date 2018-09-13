@@ -13,10 +13,6 @@ export default ({fileName, fileType, origin, extension, title, categories, coord
       : '-';
   };
 
-  const reduceTextByWordsCount = (text, count) => {
-    const words = (text && text.split(' ')) || [];
-    return words.slice(0, Math.min(count, words.length)).join(' ') + (count < words.length ? '...' : '');
-  };
 
   return(
     <div className="assets-list--asset" key={fileName}>
@@ -28,7 +24,6 @@ export default ({fileName, fileType, origin, extension, title, categories, coord
         <li className="meta--type">{ Array.isArray(relatedImages) ? relatedImages.length : '-' }</li>
         <li className="meta--type">{ new Date(created).toLocaleDateString() }</li>
       </ul>
-      <div className="asset--summary">{ reduceTextByWordsCount(summary, 18) }</div>
     </div>
   );
 }
