@@ -1,5 +1,4 @@
 import React from 'react';
-import wu from "../lib/WikiUtils";
 
 const styles = {
   list: {
@@ -29,6 +28,7 @@ const styles = {
   wideCol: {
     flex: 5,
     overflowX: 'hidden',
+    whiteSpace: 'nowrap',
     padding: '0.125rem 0.25rem'
   },
   midCol: {
@@ -50,16 +50,31 @@ export default ({items}) => (
       <div style={styles.midCol}>type</div>
       <div style={styles.midCol}>Category</div>
       <div style={styles.midCol}>Location</div>
+      <div style={styles.midCol}>Status</div>
     </div>
 
-    { items.map(({title, url, category, type, location, category_ru, tag}, idx) => (
+    { items.map((
+      {
+        articleLocale,
+        articleID,
+        articleTitle,
+        articleType,
+        articleCategory,
+        articleCategoryRU,
+        articleLocation,
+        articleTag,
+        articleStatus,
+        articleCreated
+
+    }, idx) => (
       <div style={styles.row} key={idx}>
-        <div style={styles.wideCol}>{ title }</div>
-        <div style={styles.wideCol}>{ url }</div>
-        <div style={styles.narrowCol}>{ wu.getLanguage(url).toUpperCase() }</div>
-        <div style={styles.midCol}>{ type }</div>
-        <div style={styles.midCol}>{ category }</div>
-        <div style={styles.midCol}>{ location }</div>
+        <div style={styles.wideCol}>{ articleTitle }</div>
+        <div style={styles.wideCol}>{ articleID }</div>
+        <div style={styles.narrowCol}>{ articleLocale.toUpperCase() }</div>
+        <div style={styles.midCol}>{ articleType }</div>
+        <div style={styles.midCol}>{ articleCategory }</div>
+        <div style={styles.midCol}>{ articleLocation }</div>
+        <div style={styles.midCol}>{ articleStatus }</div>
       </div>
     ))}
   </div>

@@ -3,6 +3,14 @@ import Utils from '../lib/Utils';
 import Loading from '../ui/Loading';
 import WikiLinksList from '../ui/WikiLinksList';
 
+const styles = {
+  loading: {
+    margin: '5rem',
+    textAlign: 'center',
+    width: '80%'
+  }
+};
+
 
 export default class WikiLinks extends Component {
   constructor(props) {
@@ -18,9 +26,9 @@ export default class WikiLinks extends Component {
   }
 
   loadLinks = payload => {
-    console.log('load links ', payload);
     this.setState({
       isLoaded: payload.length > 0,
+      isLoading: false,
       links: [...payload]
     });
   };
@@ -36,6 +44,7 @@ export default class WikiLinks extends Component {
 
   requestLinks = () => {
     console.log('request links ');
+    this.setState({isLoading:true});
     return Utils.listWikiLinks(this.loadLinks.bind(this), this.handleError.bind(this));
   };
 
@@ -55,7 +64,7 @@ export default class WikiLinks extends Component {
   render() {
     return (
       this.state.isLoading
-        ? <Loading/>
+        ? <div style={styles.loading}><Loading/></div>
         : <WikiLinksList isLoaded={this.state.isLoaded} items={this.state.links}/>
     );
   }

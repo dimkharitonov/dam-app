@@ -3,5 +3,10 @@
 }
 
 .csv-import-form .form-field textarea {
-  height: calc(100vh - 12rem);
+  height: calc(100vh - 15rem);
+}
+.csv-import-form--message {
+  margin: 1rem 0;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
