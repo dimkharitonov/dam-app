@@ -14,6 +14,16 @@ export default {
     };
   },
 
+  chunkArray: (arr, len) => {
+    let chunks = [],
+        i = 0,
+        n = arr.length;
+    while (i < n) {
+      chunks.push(arr.slice(i, i += len));
+    }
+    return chunks;
+  },
+
   storeData: async function (body, meta, rewrite = true) {
 
     const buildFileName = (name, extension) => name + extension;
@@ -114,6 +124,17 @@ export default {
   resizeImage: (fileName, dimensions) => {
     return API.put("assets", `/assets/resize/${encodeURIComponent(fileName)}`,{
       body: { dimensions }
+    })
+  },
+
+  listWikiLinks: (resolve,reject) =>
+    API.get('assets', `/wiki`, {})
+      .then(payload => resolve(payload))
+      .catch(error => reject(error)),
+
+  createWikiLinks: links => {
+    return API.post('assets', '/wiki', {
+      body: { items: links }
     })
   }
 }

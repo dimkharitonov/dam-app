@@ -3,13 +3,17 @@ import { Switch } from 'react-router-dom';
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
 import UnauthenticatedRoute from "./components/UnauthenticatedRoute";
 import Home from './containers/Home';
+import WikiLinks from './containers/wikiLinks';
 import Login from './containers/Login';
 import AddText from './containers/AddText';
 import ImportWikiArticles from './containers/ImportWikiArticles';
+import ImportWikiCsv from './containers/ImportWikiCsv';
 
 export default ({ childProps }) =>
   <Switch>
     <AuthenticatedRoute path="/" exact component={Home} props={childProps}/>
+    <AuthenticatedRoute path="/wikilinks" component={WikiLinks} props={childProps}/>
+    <AuthenticatedRoute path="/wiki-csv" component={ImportWikiCsv} props={childProps}/>
     <AuthenticatedRoute path="/add-text" exact component={AddText} props={childProps}/>
     <AuthenticatedRoute path="/import-wiki-articles" exact component={ImportWikiArticles} props={childProps}/>
     <UnauthenticatedRoute path="/login" exact component={Login} props={childProps}/>

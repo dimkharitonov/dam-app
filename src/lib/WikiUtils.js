@@ -3,6 +3,10 @@ import utils from "./Utils";
 
 export default {
   getLanguage: (url) => {
+    if(!url) {
+      console.log('Url is not defined', url);
+      return 'en';
+    }
     const topLevelParts = url.split('/');
     const domainParts = topLevelParts.length >=3 ? topLevelParts[2].split('.') : [];
 

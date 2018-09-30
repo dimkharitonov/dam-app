@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { HashRouter as Router, Link } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import Routes from './Routes';
+import Menu from './ui/Menu';
+
 import { Auth } from 'aws-amplify';
 
 import './App.css';
@@ -65,7 +67,7 @@ class App extends Component {
             <header className="App-header">
               <h1 className="App-title">DAM</h1>
               {this.state.isAuthenticated
-                ? <div className="App-menu"><Link to="/login" onClick={this.handleLogout}>Logout</Link></div>
+                ? <Menu handleLogout={this.handleLogout}/>
                 : ""
               }
             </header>
