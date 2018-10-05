@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Auth } from 'aws-amplify';
-import './Login.css';
-import LoadingButton from '../ui/LoadingButton';
-
+import LoginForm from '../ui/LoginForm';
 
 export default class Login extends Component {
   constructor(props) {
@@ -39,6 +37,8 @@ export default class Login extends Component {
       [event.target.id]: event.target.value
     };
 
+    console.log('change',event.target.id, event.target.value);
+
     this.setState(
       {
         [event.target.id]: event.target.value,
@@ -67,38 +67,13 @@ export default class Login extends Component {
         <p>
           Restricted area. Please Login.
         </p>
-        <form onSubmit={this.handleSubmit}>
-          <div className="form-field">
-            <label htmlFor="email-field">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="text"
-              onChange={this.handleChange}
-            />
-          </div>
-
-          <div className="form-field">
-            <label htmlFor="password-field">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              onChange={this.handleChange}
-            />
-          </div>
-
-          <div className="formError">{ this.state.errorMessage}</div>
-
-          <LoadingButton
-            type="submit"
-            className="button"
-            disabled={!this.validateForm()}
-            text="Login"
-            loadingText="checking..."
-            isLoading={this.state.isLoading}
-          />
-        </form>
+        <LoginForm
+          isLoading={this.state.isLoading}
+          error={this.state.errorMessage}
+          isNotValid={!this.validateForm()}
+          handleSubmit={this.handleSubmit}
+          handleChange={this.handleChange}
+        />
       </div>
     );
   }

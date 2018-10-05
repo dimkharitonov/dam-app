@@ -1,6 +1,12 @@
 import React from "react";
-import { FaSpinner } from 'react-icons/fa';
-import "./LoadingButton.css";
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+const styles = {
+  progressCircle: {
+    marginRight: '12px'
+  }
+};
 
 export default (
   {
@@ -8,15 +14,18 @@ export default (
     text,
     loadingText,
     className = "",
+    color = 'inherit',
     disabled = false,
     ...props
   }
 ) =>
-  <button
+  <Button
+    variant={"contained"}
     className={`LoadingButton ${className}`}
     disabled={disabled || isLoading}
+    color={color}
     {...props}
   >
-    {isLoading && <FaSpinner className="spinning" />}
+    {isLoading && <CircularProgress size={ 12 } color={color} style={styles.progressCircle}/> }
     {!isLoading ? text : loadingText}
-  </button>;
+  </Button>;

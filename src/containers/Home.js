@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import './Home.css';
 import Utils from '../lib/Utils';
 import { HomeMap } from './HomeMap';
-import Loading from '../ui/Loading';
 import DocumentList from '../ui/DocumentList';
 import MediaList from '../ui/MediaList';
 import HomeTabs from '../ui/HomeTabs';
 import TaxonomiesStat from '../ui/TaxonomiesStat';
+import InfiniteProgress from '../ui/InfiniteProgress';
 
 export default class Home extends Component {
   constructor(props) {
@@ -164,13 +164,14 @@ export default class Home extends Component {
     return (
       <div className="Home">
         <div className="navbar"><Link className="navbutton" to="/add-text">New document</Link> <Link className="navbutton" to="/import-wiki-articles">Import Wiki Articles</Link></div>
+
         <div className="home--title">
           <h1>Assets</h1>
           <HomeTabs onClick={this.onChangeType.bind(this)} checkState={this.getSelectedState.bind(this)} />
         </div>
         { this.state.isLoaded
           ? (this.state.assets.length > 0 ? this.renderAssets() : this.renderLander())
-          : <Loading/>
+          : <InfiniteProgress>loading ...</InfiniteProgress>
         }
       </div>
     );

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Utils from '../lib/Utils';
-import Loading from '../ui/Loading';
+import InfiniteProgress from '../ui/InfiniteProgress';
 import WikiLinksList from '../ui/WikiLinksList';
 
 const styles = {
@@ -64,7 +64,7 @@ export default class WikiLinks extends Component {
   render() {
     return (
       this.state.isLoading
-        ? <div style={styles.loading}><Loading/></div>
+        ? <div style={styles.loading}><InfiniteProgress>loading...</InfiniteProgress></div>
         : <WikiLinksList isLoaded={this.state.isLoaded} items={this.state.links}/>
     );
   }

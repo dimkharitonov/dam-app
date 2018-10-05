@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import Routes from './Routes';
-import Menu from './ui/Menu';
+import NavBar from './ui/NavBar';
+import InfiniteProgress from './ui/InfiniteProgress';
 
 import { Auth } from 'aws-amplify';
 
-import './App.css';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 class App extends Component {
   constructor(props) {
@@ -59,22 +60,24 @@ class App extends Component {
     };
     console.log('render', this.state.assets);
     return (
-      this.state.isAuthenticating ?
-        <div className="authentificating-progress">authenticating...</div> :
+      <div>
+        <CssBaseline/>
+        <NavBar isAuthenticated={this.state.isAuthenticated} handleLogout={this.handleLogout}/>
 
-        <Router>
-          <div className="App">
-            <header className="App-header">
-              <h1 className="App-title">DAM</h1>
-              {this.state.isAuthenticated
-                ? <Menu handleLogout={this.handleLogout}/>
-                : ""
-              }
-            </header>
+        {
 
-            <Routes childProps={childProps} />
-          </div>
-        </Router>
+          this.state.isAuthenticating
+            ?
+            <InfiniteProgress>authenticating ...</InfiniteProgress>
+            :
+            <Router>
+              <div className="App">
+                <Routes childProps={childProps} />
+              </div>
+            </Router>
+        }
+
+      </div>
     );
   }
 }
