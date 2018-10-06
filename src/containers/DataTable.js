@@ -13,6 +13,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 import Toolbar from '@material-ui/core/Toolbar';
 import Checkbox from '@material-ui/core/Checkbox';
+import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -22,22 +23,60 @@ import { lighten } from '@material-ui/core/styles/colorManipulator';
 
 
 class DataTableHeader extends Component {
+
   createSortHandler = property => event => {
     this.props.onRequestSort(event, property);
   };
 
+  createFilterHandler = property => event => {
+    this.props.onRequestFilter(event, property);
+  };
+
   render() {
+    const styles = {
+      filterField: {
+        width: 'calc(100% - 12px)'
+      }
+    };
+
     const {
       onSelectAllClick,
       order,
       orderBy,
       numSelected,
       rowCount,
-      columnData
+      columnData,
+      withFilter
     } = this.props;
 
     return (
       <TableHead>
+        {
+          withFilter && (
+            <TableRow>
+              <TableCell padding="checkbox">
+              </TableCell>
+              {columnData.map(column => {
+                return (
+                  <TableCell
+                    key={column.id}
+                    numeric={column.numeric}
+                    padding={column.disablePadding ? "none" : "default"}
+                  >
+                    <TextField
+                      id={column.id}
+                      name={column.id}
+                      margin={'normal'}
+                      label={column.label}
+                      style={styles.filterField}
+                      onChange={this.createFilterHandler(column.id)}
+                    />
+                  </TableCell>
+                );
+              }, this)}
+            </TableRow>
+          )
+        }
         <TableRow>
           <TableCell padding="checkbox">
             <Checkbox
@@ -73,11 +112,13 @@ class DataTableHeader extends Component {
 DataTableHeader.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
+  onRequestFilter: PropTypes.func.isRequired,
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
-  columnData: PropTypes.array.isRequired
+  columnData: PropTypes.array.isRequired,
+  withFilter: PropTypes.bool
 };
 
 const toolbarStyles = theme => ({
@@ -106,7 +147,7 @@ const toolbarStyles = theme => ({
 });
 
 let DataTableToolbar = props => {
-  const { numSelected, classes, tableTitle } = props;
+  const { numSelected, classes, tableTitle, onFilterClick, isFilterOpen } = props;
 
   return (
     <Toolbar
@@ -132,7 +173,7 @@ let DataTableToolbar = props => {
             <DeleteIcon />
           </IconButton>
         ) : (
-          <IconButton aria-label="Filter list">
+          <IconButton aria-label="Filter list" color={isFilterOpen? 'primary' : 'inherit'} onClick={onFilterClick}>
             <FilterListIcon />
           </IconButton>
         )}
@@ -144,7 +185,9 @@ let DataTableToolbar = props => {
 DataTableToolbar.propTypes = {
   classes: PropTypes.object.isRequired,
   numSelected: PropTypes.number.isRequired,
-  tableTitle: PropTypes.string
+  tableTitle: PropTypes.string,
+  onFilterClick: PropTypes.func,
+  isFilterOpen: PropTypes.bool
 };
 
 DataTableToolbar = withStyles(toolbarStyles)(DataTableToolbar);
@@ -177,7 +220,9 @@ class DataTable extends Component {
       page: 0,
       columnData,
       tableTitle,
-      idKey
+      idKey,
+      isFilterOpen: false,
+      filters: {}
     }
   }
 
@@ -195,6 +240,15 @@ class DataTable extends Component {
         : this.state.data.sort((a, b) => (a[orderBy] < b[orderBy] ? -1 : 1));
 
     this.setState({ data, order, orderBy });
+  };
+
+  handleRequestFilter = (event, property) => {
+    console.log('filter change', property, event.target.value);
+    let filters = {...this.state.filters};
+    filters[property] = event.target.value;
+    this.setState({
+      filters
+    })
   };
 
   handleSelectAllClick = (event, checked) => {
@@ -236,17 +290,53 @@ class DataTable extends Component {
     this.setState({ rowsPerPage: event.target.value, page: 0 });
   };
 
+  handleFilterClick = (event) => {
+    let params = { isFilterOpen: !this.state.isFilterOpen };
+    if(this.state.isFilterOpen) {
+      params.filters = {}
+    }
+    this.setState(params);
+  };
+
+  filterData = data => {
+    const { filters } = this.state;
+    return Object.keys(filters).reduce((result, key) => {
+      return (result || !filters[key])
+        && data[key]
+        && data[key].toLowerCase().indexOf(filters[key].toLowerCase()) > -1;
+    }, true);
+  };
+
+  getData = () => this.state.data.filter(item => this.filterData(item));
+
   isSelected = id => this.state.selected.indexOf(id) !== -1;
 
   render() {
     const { classes } = this.props;
-    const { data, order, orderBy, selected, rowsPerPage, page, columnData, tableTitle, idKey } = this.state;
+    const data = this.getData();
+    const {
+      order,
+      orderBy,
+      selected,
+      rowsPerPage,
+      page,
+      columnData,
+      tableTitle,
+      idKey,
+      isFilterOpen
+    } = this.state;
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
+
     return (
       <Paper className={classes.root}>
-        <DataTableToolbar numSelected={selected.length} tableTitle={tableTitle} />
+        <DataTableToolbar
+          numSelected={selected.length}
+          tableTitle={tableTitle}
+          isFilterOpen={isFilterOpen}
+          onFilterClick={this.handleFilterClick}
+        />
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">
             <DataTableHeader
@@ -255,8 +345,10 @@ class DataTable extends Component {
               orderBy={orderBy}
               onSelectAllClick={this.handleSelectAllClick}
               onRequestSort={this.handleRequestSort}
+              onRequestFilter={this.handleRequestFilter}
               rowCount={data.length}
               columnData={columnData}
+              withFilter={isFilterOpen}
             />
             <TableBody>
               {data
