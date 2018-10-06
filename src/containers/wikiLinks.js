@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import Utils from '../lib/Utils';
 import InfiniteProgress from '../ui/InfiniteProgress';
-import WikiLinksList from '../ui/WikiLinksList';
+import DataTable from './DataTable';
 
 const styles = {
-  loading: {
-    margin: '5rem',
-    textAlign: 'center',
-    width: '80%'
+  dataTable: {
+    marginTop: 64
   }
 };
-
 
 export default class WikiLinks extends Component {
   constructor(props) {
@@ -29,7 +26,7 @@ export default class WikiLinks extends Component {
     this.setState({
       isLoaded: payload.length > 0,
       isLoading: false,
-      links: [...payload]
+      links: payload.map(e => ({ ...e, articleCreated: new Date(Number(e.articleCreated)).toLocaleDateString() }))
     });
   };
 
@@ -62,10 +59,61 @@ export default class WikiLinks extends Component {
   };
 
   render() {
+    const columnData = [
+      {
+        id: 'articleTitle',
+        numeric: false,
+        disablePadding: true,
+        label: 'Title'
+      },
+      {
+        id: 'articleLocale',
+        numeric: false,
+        disablePadding: true,
+        label: 'Locale'
+      },
+      {
+        id: 'articleCreated',
+        numeric: false,
+        disablePadding: true,
+        label: 'Created'
+      },
+      {
+        id: 'articleType',
+        numeric: false,
+        disablePadding: true,
+        label: 'Type'
+      },
+      {
+        id: 'articleLocation',
+        numeric: false,
+        disablePadding: true,
+        label: 'Location'
+      },
+      {
+        id: 'articleCategory',
+        numeric: false,
+        disablePadding: true,
+        label: 'Category'
+      },
+      {
+        id: 'articleStatus',
+        numeric: false,
+        disablePadding: true,
+        label: 'Status'
+      }
+    ];
+
+    const { isLoading, links } = this.state;
+
     return (
-      this.state.isLoading
-        ? <div style={styles.loading}><InfiniteProgress>loading...</InfiniteProgress></div>
-        : <WikiLinksList isLoaded={this.state.isLoaded} items={this.state.links}/>
+      <div style={styles.dataTable}>
+        {
+          isLoading
+            ? <div><InfiniteProgress>loading...</InfiniteProgress></div>
+            : <DataTable data={ links } orderBy={'articleTitle'} rowsPerPage={25} columnData={columnData} tableTitle={'Wiki Links'} idKey={'articleID'} />
+        }
+      </div>
     );
   }
 };
