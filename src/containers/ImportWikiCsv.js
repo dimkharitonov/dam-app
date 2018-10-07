@@ -6,9 +6,22 @@ import utils from "../lib/Utils";
 import wu from '../lib/WikiUtils';
 import Papa from "papaparse";
 
+import Paper from '@material-ui/core/Paper';
+import Typography from "@material-ui/core/Typography/Typography";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Button from '@material-ui/core/Button';
+
 const styles = {
-  button: {
-    margin: '1rem'
+  page: {
+    margin: '96px 24px 24px 24px'
+  },
+  form: {
+    marginTop: '24px',
+    padding: '24px'
+  },
+  buttons: {
+    marginRight: '24px'
   },
   message: {
     margin: '1rem',
@@ -98,6 +111,12 @@ export default class ImportWikiCsv extends Component {
     }
   };
 
+  handleClearData = () => {
+    this.setState({
+      itemList: []
+    })
+  };
+
   saveItems = async () => {
     console.log('save items');
     const chunkSize = 20;
@@ -137,29 +156,46 @@ export default class ImportWikiCsv extends Component {
   };
 
   render() {
-    return this.state.itemList.length > 0
-      ? (<div>
-        <WikiLinksListItems items={this.state.itemList}/>
-        <LoadingButton
-          style={ styles.button }
-          onClick={this.saveItems}
-          className="button"
-          disabled={this.state.isSaving}
-          text="Save Links"
-          loadingText="saving..."
-          isLoading={this.state.isSaving}
-        />
-        <div style={styles.message}>{this.state.message}</div>
-      </div>)
-      : (
-        <ImportCsvForm
-          handleChange={this.handleChange.bind(this)}
-          handleSubmit={this.handleSubmit.bind(this)}
-          data={this.state.dataToImport}
-          isWorking={this.state.isWorking}
-          message={this.state.message}
-        />
-      );
+    return (
+      <div style={styles.page}>
+        <Typography variant={"title"}>
+          <IconButton aria-label="go back" onClick={ this.props.history.goBack } >
+            <ArrowBackIcon/>
+          </IconButton>
+          Add Links as CSV text
+        </Typography>
+        <Paper style={styles.form}>
+          {
+            this.state.itemList.length > 0
+              ? (<div>
+                <WikiLinksListItems items={this.state.itemList}/>
+                <LoadingButton
+                  style={ styles.buttons }
+                  color={'primary'}
+                  onClick={this.saveItems}
+                  className="button"
+                  disabled={this.state.isSaving}
+                  text="Save Links"
+                  loadingText="saving..."
+                  isLoading={this.state.isSaving}
+                />
+                <Button onClick={this.handleClearData}>Cancel</Button>
+                <div style={styles.message}>{this.state.message}</div>
+              </div>)
+              : (
+                <ImportCsvForm
+                  handleChange={this.handleChange.bind(this)}
+                  handleSubmit={this.handleSubmit.bind(this)}
+                  handleCancel={this.props.history.goBack}
+                  data={this.state.dataToImport}
+                  isWorking={this.state.isWorking}
+                  message={this.state.message}
+                />
+              )
+          }
+        </Paper>
+      </div>
+    )
   }
 }
 

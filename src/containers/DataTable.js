@@ -15,10 +15,13 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import Typography from '@material-ui/core/Typography';
+import AddIcon from '@material-ui/icons/Add';
+
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 
 
@@ -147,8 +150,8 @@ const toolbarStyles = theme => ({
 });
 
 let DataTableToolbar = props => {
-  const { numSelected, classes, tableTitle, onFilterClick, isFilterOpen } = props;
-
+  const { numSelected, classes, tableTitle, onFilterClick, isFilterOpen, onAddClick } = props;
+  const styles = { title: { marginRight: 24 } };
   return (
     <Toolbar
       className={classNames(classes.root, {
@@ -162,7 +165,10 @@ let DataTableToolbar = props => {
           </Typography>
         ) : (
           <Typography variant="title" id="tableTitle">
-            { tableTitle || 'Unknown'}
+            <span style={styles.title}>{ tableTitle || 'Unknown'}</span>
+            <IconButton color="primary" aria-label="Add" className={classes.button} onClick={onAddClick}>
+              <AddIcon />
+            </IconButton>
           </Typography>
         )}
       </div>
@@ -209,7 +215,7 @@ class DataTable extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const { data, orderBy, rowsPerPage, columnData, tableTitle, idKey } = props;
+    const { data, orderBy, rowsPerPage, columnData, tableTitle, idKey, onAddClick } = props;
 
     this.state = {
       order: "asc",
@@ -221,6 +227,7 @@ class DataTable extends Component {
       columnData,
       tableTitle,
       idKey,
+      onAddClick,
       isFilterOpen: false,
       filters: {}
     }
@@ -243,7 +250,6 @@ class DataTable extends Component {
   };
 
   handleRequestFilter = (event, property) => {
-    console.log('filter change', property, event.target.value);
     let filters = {...this.state.filters};
     filters[property] = event.target.value;
     this.setState({
@@ -280,7 +286,10 @@ class DataTable extends Component {
     this.setState({ selected: newSelected });
   };
 
-  handleRowClick = (event, id) => { return; };
+  handleRowClick = (event, id) => {
+    console.log('row click', id);
+    return;
+  };
 
   handleChangePage = (event, page) => {
     this.setState({ page });
@@ -323,7 +332,8 @@ class DataTable extends Component {
       columnData,
       tableTitle,
       idKey,
-      isFilterOpen
+      isFilterOpen,
+      onAddClick
     } = this.state;
     const emptyRows =
       rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
@@ -336,6 +346,7 @@ class DataTable extends Component {
           tableTitle={tableTitle}
           isFilterOpen={isFilterOpen}
           onFilterClick={this.handleFilterClick}
+          onAddClick={onAddClick}
         />
         <div className={classes.tableWrapper}>
           <Table className={classes.table} aria-labelledby="tableTitle">

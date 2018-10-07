@@ -4,9 +4,39 @@ import utils from "../lib/Utils";
 import Papa from 'papaparse';
 import wu from '../lib/WikiUtils';
 import LoadingButton from '../ui/LoadingButton';
-import {Link} from "react-router-dom";
-import { FaChevronLeft } from 'react-icons/fa';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+
+import IconButton from '@material-ui/core/IconButton'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
+const styles = {
+  page: {
+    margin: '96px 24px 24px 24px'
+  },
+  form: {
+    marginTop: '24px',
+    padding: '24px'
+  },
+  dataTable: {
+    marginBottom: '24px'
+  },
+  multilineText: {
+    width: '100%'
+  },
+  buttons: {
+    marginRight: '24px'
+  }
+};
 
 export default class ImportWikiArticles extends Component {
   constructor(props) {
@@ -119,54 +149,79 @@ export default class ImportWikiArticles extends Component {
   renderForm() {
     return(
       <form onSubmit={this.handleSubmit}>
-        <div className="form-field">
-          <label htmlFor="dataToImport">CSV Data</label>
-          <textarea
-            id="dataToImport"
-            name="dataToImport"
-            onChange={this.handleChange}
-            value={this.state.dataToImport}
-          >
-          </textarea>
-        </div>
-        <button type="submit">Parse Data</button>
+        <TextField
+          id="dataToImport"
+          name="dataToImport"
+          label="data in CSV format"
+          multiline
+          value={this.state.dataToImport}
+          onChange={this.handleChange}
+          margin="normal"
+          style={styles.multilineText}
+        />
+
+        <Button variant="contained" color="primary" type="submit" style={styles.buttons}>Parse Data</Button>
+        <Button onClick={this.props.history.goBack} style={styles.buttons}>Cancel</Button>
       </form>
     );
   }
 
   renderItem({ title, url, category, type, location, category_ru, tag, status }) {
     return(
-      <div className="items-list--item" key={url}>
-        <ul className="item--meta">
-          <li className="item--title">{ title }</li>
-          <li className="item--lang">{ wu.getLanguage(url).toUpperCase() }</li>
-          <li className="item--type">{ type }</li>
-          <li className="item--category">{ category }</li>
-          <li className="item--location">{ location }</li>
-          <li className="item--status">{ status ? status : '' }</li>
-        </ul>
-      </div>
+      <TableRow key={url}>
+        <TableCell>
+          { title }
+        </TableCell>
+        <TableCell>
+          { wu.getLanguage(url).toUpperCase() }
+        </TableCell>
+        <TableCell>
+          { type }
+        </TableCell>
+        <TableCell>
+          { category }
+        </TableCell>
+        <TableCell>
+          { location }
+        </TableCell>
+        <TableCell>
+          { status ? status : '.' }
+        </TableCell>
+      </TableRow>
     );
-
   }
 
   renderItemsList() {
     return (
-      <div className="items-list">
-        <div className="items-list--item" key="headerrow">
-          <ul className="item--meta item--header">
-            <li className="item--title">title</li>
-            <li className="item--lang">lang</li>
-            <li className="item--type">type</li>
-            <li className="item--category">Category</li>
-            <li className="item--location">Location</li>
-            <li className="item--status">status</li>
-          </ul>
-        </div>
-        {
-          this.state.itemList.map(item => item.url ? this.renderItem(item) : null)
-        }
-      </div>
+      <Table style={styles.dataTable}>
+        <TableHead>
+          <TableRow>
+            <TableCell>
+              Title
+            </TableCell>
+            <TableCell>
+              Locale
+            </TableCell>
+            <TableCell>
+              Type
+            </TableCell>
+            <TableCell>
+              Category
+            </TableCell>
+            <TableCell>
+              Location
+            </TableCell>
+            <TableCell>
+              Status
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {
+            this.state.itemList.map(item => item.url ? this.renderItem(item) : null)
+          }
+        </TableBody>
+      </Table>
     );
   }
 
@@ -176,30 +231,40 @@ export default class ImportWikiArticles extends Component {
         { this.renderItemsList()}
         <LoadingButton
           onClick={this.importItems}
-          className="button"
+          color="primary"
           disabled={false}
           text="Import Articles"
           loadingText="importing..."
           isLoading={this.state.isLoading}
+          style={styles.buttons}
         />
 
-        <button onClick={this.clearList}>
+        <Button onClick={this.clearList}>
           Cancel
-        </button>
-        <div>{ this.state.message }</div>
+        </Button>
+        <Typography>
+          { this.state.message }
+        </Typography>
       </div>
     );
   }
 
   render() {
     return (
-      <div className="import-wiki">
-        <div className="navbar"><Link className="navbutton" to="/"><FaChevronLeft/> Back</Link></div>
+      <div style={styles.page}>
+        <Typography variant={"title"}>
+          <IconButton aria-label="go back" onClick={ this.props.history.goBack }>
+            <ArrowBackIcon/>
+          </IconButton>
+          Add Links as CSV text
+        </Typography>
+        <Paper style={styles.form}>
         {
           this.state.itemList.length > 0
             ? this.renderImportForm()
             : this.renderForm()
         }
+        </Paper>
       </div>
     )
   }

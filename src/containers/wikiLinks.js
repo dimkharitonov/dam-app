@@ -5,7 +5,7 @@ import DataTable from './DataTable';
 
 const styles = {
   dataTable: {
-    marginTop: 64
+    margin: '96px 24px 24px 24px'
   }
 };
 
@@ -111,7 +111,15 @@ export default class WikiLinks extends Component {
         {
           isLoading
             ? <div><InfiniteProgress>loading...</InfiniteProgress></div>
-            : <DataTable data={ links } orderBy={'articleTitle'} rowsPerPage={25} columnData={columnData} tableTitle={'Wiki Links'} idKey={'articleID'} />
+            : <DataTable
+              data={ links }
+              orderBy={'articleTitle'}
+              rowsPerPage={25}
+              columnData={columnData}
+              tableTitle={'Wiki Links'}
+              idKey={'articleID'}
+              onAddClick={e => this.props.history.push('/wiki-csv')}
+            />
         }
       </div>
     );
