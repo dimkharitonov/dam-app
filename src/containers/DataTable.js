@@ -259,7 +259,7 @@ class DataTable extends Component {
 
   handleSelectAllClick = (event, checked) => {
     if (checked) {
-      this.setState({ selected: this.state.data.map(n => n[this.state.idKey]) });
+      this.setState({ selected: this.getData().map(n => n[this.state.idKey]) });
       return;
     }
     this.setState({ selected: [] });
