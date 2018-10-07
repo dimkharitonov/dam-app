@@ -45,6 +45,10 @@ export default class WikiLinks extends Component {
     return Utils.listWikiLinks(this.loadLinks.bind(this), this.handleError.bind(this));
   };
 
+  importWikiArticles = (selected) => {
+    console.log('request to import articles', selected.length);
+  };
+
   componentDidMount = async () => {
     this._isMounted = true;
     try {
@@ -119,6 +123,7 @@ export default class WikiLinks extends Component {
               tableTitle={'Wiki Links'}
               idKey={'articleID'}
               onAddClick={e => this.props.history.push('/wiki-csv')}
+              onDownloadClick={this.importWikiArticles}
             />
         }
       </div>

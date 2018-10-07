@@ -18,7 +18,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import AddIcon from '@material-ui/icons/Add';
 
@@ -150,7 +150,7 @@ const toolbarStyles = theme => ({
 });
 
 let DataTableToolbar = props => {
-  const { numSelected, classes, tableTitle, onFilterClick, isFilterOpen, onAddClick } = props;
+  const { numSelected, classes, tableTitle, onFilterClick, isFilterOpen, onAddClick, onDownloadClick } = props;
   const styles = { title: { marginRight: 24 } };
   return (
     <Toolbar
@@ -175,8 +175,8 @@ let DataTableToolbar = props => {
       <div className={classes.spacer} />
       <div className={classes.actions}>
         {numSelected > 0 ? (
-          <IconButton aria-label="Delete">
-            <DeleteIcon />
+          <IconButton aria-label="Download" onClick={onDownloadClick}>
+            <CloudDownloadIcon />
           </IconButton>
         ) : (
           <IconButton aria-label="Filter list" color={isFilterOpen? 'primary' : 'inherit'} onClick={onFilterClick}>
@@ -193,6 +193,7 @@ DataTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   tableTitle: PropTypes.string,
   onFilterClick: PropTypes.func,
+  onDownloadClick: PropTypes.func,
   isFilterOpen: PropTypes.bool
 };
 
@@ -215,7 +216,7 @@ class DataTable extends Component {
   constructor(props, context) {
     super(props, context);
 
-    const { data, orderBy, rowsPerPage, columnData, tableTitle, idKey, onAddClick } = props;
+    const { data, orderBy, rowsPerPage, columnData, tableTitle, idKey, onAddClick, onDownloadClick } = props;
 
     this.state = {
       order: "asc",
@@ -228,6 +229,7 @@ class DataTable extends Component {
       tableTitle,
       idKey,
       onAddClick,
+      onDownloadClick,
       isFilterOpen: false,
       filters: {}
     }
@@ -282,8 +284,11 @@ class DataTable extends Component {
         selected.slice(selectedIndex + 1)
       );
     }
-
     this.setState({ selected: newSelected });
+  };
+
+  handleDownloadClick = () => {
+    this.state.onDownloadClick(this.state.selected);
   };
 
   handleRowClick = (event, id) => {
@@ -346,6 +351,7 @@ class DataTable extends Component {
           tableTitle={tableTitle}
           isFilterOpen={isFilterOpen}
           onFilterClick={this.handleFilterClick}
+          onDownloadClick={this.handleDownloadClick}
           onAddClick={onAddClick}
         />
         <div className={classes.tableWrapper}>
