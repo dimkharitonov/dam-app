@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import Utils from '../lib/Utils';
+import wu from '../lib/WikiUtils';
 import InfiniteProgress from '../ui/InfiniteProgress';
 import DataTable from './DataTable';
+import WikiLinksDownload from '../ui/WikiLinksDownload';
 
 const styles = {
   dataTable: {
@@ -16,17 +18,30 @@ export default class WikiLinks extends Component {
     this.state = {
       isLoaded: false,
       isLoading: false,
+      isDownloading: false,
+      itemsToDownload: 0,
+      downloadIndex: 0,
+      requestForCancel: false,
+      downLoadMessage: '',
+      cancelMessage: '',
       links: []
     };
 
     this._isMounted = false;
+    this.downloading = {
+      queue: [],
+      requestForCancel: false,
+      index: 0,
+      isError: false,
+      onDone: null
+    }
   }
 
   loadLinks = payload => {
     this.setState({
       isLoaded: payload.length > 0,
       isLoading: false,
-      links: payload.map(e => ({ ...e, articleCreated: new Date(Number(e.articleCreated)).toLocaleDateString() }))
+      links: payload.map(e => ({ ...e, articleCreatedTxt: new Date(Number(e.articleCreated)).toLocaleDateString() }))
     });
   };
 
@@ -45,8 +60,110 @@ export default class WikiLinks extends Component {
     return Utils.listWikiLinks(this.loadLinks.bind(this), this.handleError.bind(this));
   };
 
-  importWikiArticles = (selected) => {
+  importWikiArticles = (selected, onDone) => {
+    if(!Array.isArray(selected)) {
+      return;
+    }
+
+    const getSelectedItems = (selectedItems) => this.state.links
+      .filter(
+        (item, idx) => selectedItems.reduce(
+          (acc, value) => acc || value === item.articleID,
+          false
+        )
+      );
+
+    this.downloading.queue = getSelectedItems(selected);
+    this.downloading.index = 0;
+    this.downloading.onDone = onDone;
+
+    this.setState({
+      isDownloading: true,
+      itemsToDownload: selected.length
+    });
     console.log('request to import articles', selected.length);
+
+    this.importWikiArticlesNext(onDone);
+  };
+
+  importWikiArticlesLogger = function({message}) {
+    this.setState({
+      downLoadMessage: message
+    })
+  };
+
+  importWikiArticlesCancel = () => {
+    if(this.downloading.isError) {
+      this.importWikiArticlesDone()
+    } else {
+      this.downloading.requestForCancel = true;
+      this.setState({cancelMessage: 'please wait till the end of the current operation'});
+    }
+  };
+
+  importWikiArticlesNext = () => {
+    if(!this.downloading.requestForCancel && this.downloading.queue.length) {
+      const [item, ...rest] = this.downloading.queue;
+
+      console.log('Download', item);
+      this.downloading.queue = [...rest];
+      this.downloading.index++;
+
+      this.importWikiArticlesLogger({message: 'downloading ' + item.articleTitle});
+
+      wu.importWikiArticle(item, this.importWikiArticlesLogger.bind(this))
+        .then(
+          () => {
+            console.log('updating status to uploaded', item);
+            this.importWikiArticlesLogger({message: 'updating status'});
+            item.articleStatus = 'uploaded';
+
+            this.setState({
+              links: this.state.links.map((link) => ({
+                ...link,
+                status: link.articleID === item.articleID ? item.status : link.status
+              }))
+            });
+
+            return Utils.createWikiLinks([item]);
+          }
+        )
+        .then(
+          () => {
+            console.log('go next');
+            this.importWikiArticlesNext();
+          }
+        )
+        .catch(
+          (error) => {
+            console.log('error', error);
+            this.importWikiArticlesLogger({message: `error while downloading ${item.articleID}: ${error}`});
+            this.downloading.isError = true;
+          }
+        );
+
+      this.setState({
+        downloadIndex: this.downloading.index
+      });
+
+    } else {
+      console.log('Call done');
+      this.importWikiArticlesDone();
+    }
+  };
+
+  importWikiArticlesDone = () => {
+    console.log('Done downloading');
+    this.setState({
+      requestForCancel: false,
+      isDownloading: false,
+      downloadMessage: '',
+      cancelMessage: ''
+    });
+
+    if(this.downloading.onDone) {
+      this.downloading.onDone(this.downloading.queue);
+    }
   };
 
   componentDidMount = async () => {
@@ -77,7 +194,7 @@ export default class WikiLinks extends Component {
         label: 'Locale'
       },
       {
-        id: 'articleCreated',
+        id: 'articleCreatedTxt',
         numeric: false,
         disablePadding: true,
         label: 'Created'
@@ -126,6 +243,15 @@ export default class WikiLinks extends Component {
               onDownloadClick={this.importWikiArticles}
             />
         }
+        <WikiLinksDownload
+          open={ this.state.isDownloading }
+          onCancel={ this.importWikiArticlesCancel }
+          total={ this.state.itemsToDownload }
+          index={ this.state.downloadIndex }
+          message={ this.state.downLoadMessage }
+          cancelMessage = { this.state.cancelMessage }
+        />
+
       </div>
     );
   }

@@ -195,7 +195,38 @@ export default {
     'mainImage',
     'rawImages',
     'summary'
-  ]
+  ],
+
+  getCategoriesList: () => [
+    'Category',
+    'Type',
+    'Location',
+    'Category_ru',
+    'Tag'
+  ],
+
+  splitCategory: (category) => category.split(',').map(c => c.trim()),
+
+  addPrefix: (categoryName, categories) => categories.map(c => categoryName + ':' + c),
+
+  getExtraCategories: function(item) {
+    return this.getCategoriesList()
+      .map(c =>
+        item[c.toLowerCase()]
+          ? this.addPrefix(c, this.splitCategory(item[c.toLowerCase()]))
+          : []
+      )
+      .reduce((acc, val) => acc.concat(val), [])
+  },
+
+
+  importWikiArticle: async function(item, logger) {
+    console.log('WU: import ', item);
+
+    const data = await this.getArticle(item.articleID);
+
+    return this.saveArticle(data, logger, this.getExtraCategories(item));
+  }
 
 
 };

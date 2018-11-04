@@ -287,8 +287,12 @@ class DataTable extends Component {
     this.setState({ selected: newSelected });
   };
 
+  afterDownload = (selected) => {
+    this.setState({ selected })
+  };
+
   handleDownloadClick = () => {
-    this.state.onDownloadClick(this.state.selected);
+    this.state.onDownloadClick(this.state.selected, this.afterDownload.bind(this));
   };
 
   handleRowClick = (event, id) => {
