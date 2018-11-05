@@ -81,6 +81,10 @@ export default class Assets extends Component {
 
   onSelected(index) {
     let idx = this.state.assets.findIndex(e => e.fileName === index) || 0;
+
+    // get media for selected file and store it
+    // pass media data to Asset Preview through state
+
     this.setState({
       selectedIndex: idx,
       selectedDocument: { ...this.state.assets[idx] }

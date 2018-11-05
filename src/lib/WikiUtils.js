@@ -221,14 +221,37 @@ export default {
       .reduce((acc, val) => acc.concat(val), [])
   },
 
-
   importWikiArticle: async function(item, logger) {
     console.log('WU: import ', item);
 
     const data = await this.getArticle(item.articleID);
 
     return this.saveArticle(data, logger, this.getExtraCategories(item));
-  }
+  },
 
+  parseCategories(cats) {
+    return cats.map(cat => {
+      // split to taxonomy type and items
+      let parts = cat.split(':');
+      return {
+        type: parts[0].trim(),
+        items: parts[1].split(',').map(i => i.trim())
+      }
+    }).reduce((acc, value) => {
+      // count number of categories by type
+      if(!acc[value.type]) {
+        acc[value.type] = {}
+      }
+
+      for(let i=0; i<value.items.length; i++) {
+        acc[value.type][value.items[i]] =
+          acc[value.type][value.items[i]]
+            ? acc[value.type][value.items[i]] += 1
+            : 1;
+      }
+
+      return acc;
+    }, {})
+  }
 
 };
