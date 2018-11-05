@@ -27,7 +27,8 @@ const NavBar = ({handleLogout, isAuthenticated}) => (
             <Grid container spacing={16}>
               <Grid item sm={8}>
                 <div style={styles.menu}>
-                  <Button color="inherit" size={"small"} href="/#">Assets</Button>
+                  <Button color="inherit" size={"small"} href="/#">Home</Button>
+                  <Button color="inherit" size={"small"} href="/#/assets">Assets</Button>
                   <Button color="inherit" size={"small"} href="/#/wikilinks">Wiki Links</Button>
                 </div>
               </Grid>
