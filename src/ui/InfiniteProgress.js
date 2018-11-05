@@ -19,7 +19,7 @@ const InfiniteProgress = ({children}) => (
     <Grid item sm={12}>
       <CircularProgress size={18} color={"secondary"}/>
       <div style={styles.comments}>
-        <Typography variant={"body1"}>
+        <Typography variant={"body2"}>
           { children }
         </Typography>
       </div>

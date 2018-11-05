@@ -136,5 +136,36 @@ export default {
     return API.post('assets', '/wiki', {
       body: { items: links }
     })
+  },
+
+  bulkSaveWikiLinks: async function(links, logger = ({message}) => console.log) {
+    const chunkSize = 20;
+    let chunks = this.chunkArray(links, chunkSize);
+    let unsaved = [];
+    let saved = 0;
+
+    for(let i=0; i<chunks.length; i++) {
+      let params = chunks[i];
+
+      try {
+        await this.createWikiLinks(params);
+        saved += chunks[i].length;
+
+        logger({
+          message: `saved ${chunkSize * (i+1)} from ${links.length} links`
+        })
+      } catch (e) {
+        console.log('can not save links', e);
+        logger({
+          message: `error while saving ${i}th set of links`
+        });
+        unsaved = [ ...unsaved, ...chunks[i] ];
+      }
+    }
+
+    return {
+      unsaved,
+      saved
+    };
   }
 }

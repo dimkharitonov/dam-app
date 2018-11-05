@@ -44,7 +44,7 @@ export default ({handleSubmit, handleChange, data, isWorking, message, handleCan
       style={styles.buttons}
     />
     <Button onClick={handleCancel} style={styles.buttons}>Cancel</Button>
-    <Typography style={styles.message} variant={"body1"}>
+    <Typography style={styles.message} variant={"body2"}>
       {message}
     </Typography>
   </form>

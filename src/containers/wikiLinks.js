@@ -60,6 +60,48 @@ export default class WikiLinks extends Component {
     return Utils.listWikiLinks(this.loadLinks.bind(this), this.handleError.bind(this));
   };
 
+  getLinksFromDocument = (document) => {
+    const links = document.langlinks.filter((i) => ['en', 'de', 'ru', 'sv', 'da'].reduce(
+      (acc, val) => acc || val === i.lang,
+      false
+    ));
+
+    const locale = document.articleLocale;
+
+    const buildURL = ({lang, title}) => [
+      'https://',
+      lang,
+      '.wikipedia.org/wiki/',
+      encodeURIComponent(title)
+    ].join('');
+
+    const isNonSystem = ({title}) => title.match(/^\w+:\w/) === null;
+
+    const isNewLink = ({articleID}) => this.state.links.find(
+      (item) => articleID === item.articleID
+    ) === undefined;
+
+    const meta = {
+      articleCreated: Date.now(),
+      articleLocation: document.articleLocation,
+      articleStatus: "new",
+      articleType: 'Linked'
+    };
+
+    return [
+      ...links,
+      ...document.links.map(i => ({lang: locale, title: i}))
+    ]
+      .filter(isNonSystem)
+      .map(link => ({
+        ...meta,
+        articleID: buildURL(link),
+        articleTitle: link.title,
+        articleLocale: link.lang
+      }))
+      .filter(isNewLink);
+  };
+
   importWikiArticles = (selected, onDone) => {
     if(!Array.isArray(selected)) {
       return;
@@ -113,24 +155,34 @@ export default class WikiLinks extends Component {
 
       wu.importWikiArticle(item, this.importWikiArticlesLogger.bind(this))
         .then(
-          () => {
+          (result) => {
             console.log('updating status to uploaded', item);
             this.importWikiArticlesLogger({message: 'updating status'});
             item.articleStatus = 'uploaded';
 
-            this.setState({
-              links: this.state.links.map((link) => ({
-                ...link,
-                status: link.articleID === item.articleID ? item.status : link.status
-              }))
+            const newLinks = this.getLinksFromDocument({
+              ...result.document,
+              articleLocale: item.articleLocale,
+              articleLocation: item.articleLocation
             });
 
-            return Utils.createWikiLinks([item]);
+
+            this.setState({
+              links: this.state.links.map((link) => ({
+                  ...link,
+                  status: link.articleID === item.articleID ? item.status : link.status
+                }))
+            });
+
+            return Utils.bulkSaveWikiLinks([
+              item,
+              ...newLinks
+            ]);
           }
         )
         .then(
-          () => {
-            console.log('go next');
+          (result) => {
+            console.log('result of saving links (non-saved)', result, 'go next');
             this.importWikiArticlesNext();
           }
         )
@@ -160,6 +212,12 @@ export default class WikiLinks extends Component {
       downloadMessage: '',
       cancelMessage: ''
     });
+
+    try {
+      this.requestLinks();
+    } catch(e) {
+      console.log('Error while getting assets', e);
+    }
 
     if(this.downloading.onDone) {
       this.downloading.onDone(this.downloading.queue);

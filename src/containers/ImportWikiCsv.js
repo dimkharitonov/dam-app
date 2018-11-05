@@ -158,7 +158,7 @@ export default class ImportWikiCsv extends Component {
   render() {
     return (
       <div style={styles.page}>
-        <Typography variant={"title"}>
+        <Typography variant={"h6"}>
           <IconButton aria-label="go back" onClick={ this.props.history.goBack } >
             <ArrowBackIcon/>
           </IconButton>

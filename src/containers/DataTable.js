@@ -160,11 +160,11 @@ let DataTableToolbar = props => {
     >
       <div className={classes.title}>
         {numSelected > 0 ? (
-          <Typography color="inherit" variant="subheading">
+          <Typography color="inherit" variant="subtitle1">
             {numSelected} selected
           </Typography>
         ) : (
-          <Typography variant="title" id="tableTitle">
+          <Typography variant="h6" id="tableTitle">
             <span style={styles.title}>{ tableTitle || 'Unknown'}</span>
             <IconButton color="primary" aria-label="Add" className={classes.button} onClick={onAddClick}>
               <AddIcon />
@@ -232,11 +232,25 @@ class DataTable extends Component {
       onDownloadClick,
       isFilterOpen: false,
       filters: {}
-    }
+    };
+
+    this._isMounted = false;
   }
 
+  componentDidMount = () => {
+    this._isMounted = true;
+  };
+
+  componentWillUnmount = () => {
+    this._isMounted = false;
+  };
+
   handleRequestSort = (event, property) => {
-    const orderBy = property;
+    if(!this._isMounted) {
+      return;
+    }
+
+    const orderBy = property === 'articleCreatedTxt' ? 'articleCreated' : property;
     let order = "desc";
 
     if (this.state.orderBy === property && this.state.order === "desc") {
@@ -252,6 +266,10 @@ class DataTable extends Component {
   };
 
   handleRequestFilter = (event, property) => {
+    if(!this._isMounted) {
+      return;
+    }
+
     let filters = {...this.state.filters};
     filters[property] = event.target.value;
     this.setState({
@@ -260,6 +278,10 @@ class DataTable extends Component {
   };
 
   handleSelectAllClick = (event, checked) => {
+    if(!this._isMounted) {
+      return;
+    }
+
     if (checked) {
       this.setState({ selected: this.getData().map(n => n[this.state.idKey]) });
       return;
@@ -268,6 +290,10 @@ class DataTable extends Component {
   };
 
   handleSelectClick = (event, id) => {
+    if(!this._isMounted) {
+      return;
+    }
+
     const { selected } = this.state;
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -288,27 +314,45 @@ class DataTable extends Component {
   };
 
   afterDownload = (selected) => {
+    if(!this._isMounted) {
+      return;
+    }
     this.setState({ selected })
   };
 
   handleDownloadClick = () => {
+    if(!this._isMounted) {
+      return;
+    }
     this.state.onDownloadClick(this.state.selected, this.afterDownload.bind(this));
   };
 
   handleRowClick = (event, id) => {
+    if(!this._isMounted) {
+      return;
+    }
     console.log('row click', id);
     return;
   };
 
   handleChangePage = (event, page) => {
+    if(!this._isMounted) {
+      return;
+    }
     this.setState({ page });
   };
 
   handleChangeRowsPerPage = event => {
+    if(!this._isMounted) {
+      return;
+    }
     this.setState({ rowsPerPage: event.target.value, page: 0 });
   };
 
   handleFilterClick = (event) => {
+    if(!this._isMounted) {
+      return;
+    }
     let params = { isFilterOpen: !this.state.isFilterOpen };
     if(this.state.isFilterOpen) {
       params.filters = {}

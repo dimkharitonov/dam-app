@@ -73,6 +73,7 @@ export default {
       title: data.title || 'noname' + Date.now(),
       origin: data.origin || null,
       summary: data.summary || null,
+      length: data.content.length || 0,
       categories: [
         ...(data.categories || []),
         ...extraCategories
@@ -158,6 +159,7 @@ export default {
 
       return({
         success: true,
+        document
       });
     } catch (e) {
       console.log('get error ', e);

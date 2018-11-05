@@ -18,7 +18,7 @@ const NavBar = ({handleLogout, isAuthenticated}) => (
   <div>
     <AppBar position="fixed">
       <ToolBar>
-        <Typography variant="title" color="inherit">
+        <Typography variant="h6" color="inherit">
           WAM
         </Typography>
         {

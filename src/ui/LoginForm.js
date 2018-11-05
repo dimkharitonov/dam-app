@@ -23,7 +23,7 @@ const LoginForm = ({error, isNotValid, isLoading, handleSubmit, handleChange}) =
       <Grid item sm={3}/>
       <Grid item sm={6}>
         <form onSubmit={handleSubmit}>
-          <Typography variant={"title"}>
+          <Typography variant={"h6"}>
             Restricted Area
           </Typography>
           <TextField
