@@ -21,6 +21,7 @@ import IconButton from '@material-ui/core/IconButton'
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import AddIcon from '@material-ui/icons/Add';
+import OpenInNew from '@material-ui/icons/OpenInNew';
 
 import { lighten } from '@material-ui/core/styles/colorManipulator';
 
@@ -211,6 +212,20 @@ const styles = theme => ({
     overflowX: "auto"
   }
 });
+
+const tableStyles = {
+  cellTitle: {
+    width: '100%',
+    position: 'relative',
+  },
+
+  link: {
+    position: 'absolute',
+    right: '24px',
+    top: '50%',
+    transform: 'translateY(-50%)'
+  }
+};
 
 class DataTable extends Component {
   constructor(props, context) {
@@ -443,7 +458,18 @@ class DataTable extends Component {
                             numeric={column.numeric}
                             padding={column.disablePadding ? "none" : "default"}
                           >
-                            { n[column.id] }
+                            {
+                              column.showExternalLink
+                                ?
+                                <div style={tableStyles.cellTitle}>
+                                  {n[column.id]}
+                                  <IconButton href={n[column.externalLinkField]} target={'_blank'} size="small" style={tableStyles.link}>
+                                    <OpenInNew/>
+                                  </IconButton>
+                                </div>
+                                :
+                                n[column.id]
+                            }
                           </TableCell>
                         );
                       }, this)}

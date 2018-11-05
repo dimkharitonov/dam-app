@@ -243,7 +243,9 @@ export default class WikiLinks extends Component {
         id: 'articleTitle',
         numeric: false,
         disablePadding: true,
-        label: 'Title'
+        label: 'Title',
+        showExternalLink: true,
+        externalLinkField: 'articleID'
       },
       {
         id: 'articleLocale',
