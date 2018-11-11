@@ -24,6 +24,15 @@ export default {
     return chunks;
   },
 
+  getImageKey: (file, extension) => {
+    const filePrefix = ['.jpg','.jpeg','.png'].reduce((acc, val) =>  acc || val === extension.toLowerCase() , false)
+      ? 'thumbnails/240/'
+      : 'media/';
+
+    const imageKey = [filePrefix, file, extension].join('');
+    return imageKey;
+  },
+
   storeData: async function (body, meta, rewrite = true) {
 
     const buildFileName = (name, extension) => name + extension;
@@ -111,8 +120,23 @@ export default {
     })
   },
 
-  listAssets: fileType => {
-    return API.get('assets', `/assets/list/${encodeURIComponent(fileType)}`, {});
+  listAssets: (fileType, items=null) => {
+    let qs = {};
+    if(items) {
+      qs = {
+        items: items.join(',')
+      }
+    }
+    let result;
+
+    try {
+      result = API.get('assets', `/assets/list/${encodeURIComponent(fileType)}`, {
+        queryStringParameters: qs
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return result;
   },
 
   updateAsset: (fileName, asset) => {

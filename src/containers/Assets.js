@@ -47,15 +47,13 @@ export default class Assets extends Component {
 
     Utils.listAssets('documents')
       .then(
-        (assets) => {
+        ([assets]) => {
           const display = assets.splice(0,Math.min(20, assets.length));
 
           if(this._isMounted) {
-            console.log(`selected index from path ${this.selectedDocumentId}`);
             let idx = 0;
             if(this.selectedDocumentId) {
               idx = display.findIndex(e => e.fileName === this.selectedDocumentId) || 0;
-              console.log(`found ${idx} element`, display[idx]);
             }
 
             this.setState({

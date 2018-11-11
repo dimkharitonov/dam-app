@@ -1,0 +1,8 @@
+.AssetPreview {
+  overflow: hidden;
+}
+
+.AssetPreview img {
+  width: 100%;
+
+}

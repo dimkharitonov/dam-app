@@ -58,7 +58,7 @@ class App extends Component {
       isAuthenticated: this.state.isAuthenticated,
       userHasAuthenticated: this.userHasAuthenticated.bind(this)
     };
-    console.log('render', this.state.assets);
+
     return (
       <div>
         <CssBaseline/>

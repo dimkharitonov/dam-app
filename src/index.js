@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Amplify from 'aws-amplify';
 import config from "./configuration/config";
-import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
