@@ -4,6 +4,7 @@ import Utils from "../lib/Utils";
 
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import TablePagination from '@material-ui/core/TablePagination';
 
 import AssetsList from '../ui/AssetsList';
 import AssetPreview from '../ui/AssetPreview';
@@ -16,6 +17,21 @@ const styles = {
   },
   fullHeight: {
     height: '100%'
+  },
+  height20p: {
+    height: '20%'
+  },
+  height10p: {
+    height: '10%'
+  },
+  height70p: {
+    height: '70%'
+  },
+  footer: {
+    height: '10%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end'
   }
 };
 
@@ -25,44 +41,40 @@ export default class Assets extends Component {
 
     this.state = {
       assets: [],
-      fullset: [],
       categories: {},
       isLoading: false,
       message: '',
       selectedDocument: null,
-      selectedIndex: 0
+      selectedIndex: 0,
+      recordsNumber: 0,
+      page: 0,
+      pages: 0,
+      rowsPerPage: 0
     };
 
     this.selectedDocumentId = props.match.params.index || '';
 
     this._isMounted = false;
+    this.assets = [];
+    this.page = 0;
+    this.rowsPerPage = 25;
+    this.pages = 0;
   }
 
   loadDocuments() {
     this.setState({
       isLoading: true,
-      assets: [],
-      fullset: []
+      assets: []
     });
 
     Utils.listAssets('documents')
       .then(
         ([assets]) => {
-          const display = assets.splice(0,Math.min(20, assets.length));
+          this.assets = assets;
+          this.pages = Math.floor(assets.length / this.rowsPerPage + 0.99);
 
           if(this._isMounted) {
-            let idx = 0;
-            if(this.selectedDocumentId) {
-              idx = display.findIndex(e => e.fileName === this.selectedDocumentId) || 0;
-            }
-
-            this.setState({
-              isLoading: false,
-              assets: display,
-              fullset: assets,
-              selectedIndex: idx,
-              selectedDocument: { ...display[idx] }
-            })
+            this.updateList();
           }
         }
       )
@@ -77,6 +89,25 @@ export default class Assets extends Component {
       )
   }
 
+  updateList() {
+    let idx = 0;
+    const display = [...this.assets].splice(this.page * this.rowsPerPage, Math.min(this.rowsPerPage, this.assets.length - this.page * this.rowsPerPage));
+    if(this.selectedDocumentId) {
+      idx = display.findIndex(e => e.fileName === this.selectedDocumentId) || 0;
+    }
+
+    console.log('to display ', display);
+    this.setState({
+      isLoading: false,
+      assets: display,
+      selectedIndex: idx,
+      selectedDocument: { ...display[idx] },
+      page: this.page,
+      recordsNumber: this.assets.length,
+      rowsPerPage: this.rowsPerPage,
+    })
+  }
+
   onSelected(index) {
     let idx = this.state.assets.findIndex(e => e.fileName === index) || 0;
 
@@ -89,6 +120,23 @@ export default class Assets extends Component {
     });
     this.props.history.push(`/assets/${index}`);
   }
+
+  handleChangePage = (event, page) => {
+    if(!this._isMounted) {
+      return;
+    }
+    this.page = Math.min(Math.max(page,0), this.pages);
+    this.updateList();
+  };
+
+  handleChangeRowsPerPage = event => {
+    if(!this._isMounted) {
+      return;
+    }
+    this.rowsPerPage = event.target.value;
+    this.pages = Math.floor(this.assets.length / this.rowsPerPage + 0.99);
+    this.updateList();
+  };
 
   componentDidMount() {
     this._isMounted = true;
@@ -107,12 +155,34 @@ export default class Assets extends Component {
             ? <InfiniteProgress>loading...</InfiniteProgress>
             : <Paper style={styles.fullHeight}>
               <Grid container style={styles.fullHeight}>
-                <Grid item sm={4} style={styles.fullHeight}>
-                  <AssetsList
-                    assets={this.state.assets}
-                    onSelect={this.onSelected.bind(this)}
-                    selected={this.state.selectedIndex}
-                  />
+                <Grid item sm={4} style={styles.fullHeight} container>
+                  <Grid item sm={12} style={styles.height20p}>
+                    filter
+                  </Grid>
+                  <Grid item sm={12} style={styles.height70p}>
+                    <AssetsList
+                      assets={this.state.assets}
+                      onSelect={this.onSelected.bind(this)}
+                      selected={this.state.selectedIndex}
+                    />
+                  </Grid>
+                  <Grid item sm={12} style={styles.footer}>
+                    <TablePagination
+                      component="div"
+                      count={this.state.recordsNumber}
+                      rowsPerPage={this.state.rowsPerPage}
+                      page={this.page}
+                      backIconButtonProps={{
+                        "aria-label": "Previous Page"
+                      }}
+                      nextIconButtonProps={{
+                        "aria-label": "Next Page"
+                      }}
+                      onChangePage={this.handleChangePage}
+                      onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                    />
+                  </Grid>
+
                 </Grid>
                 <Grid item sm={8} style={styles.fullHeight}>
                   { this.state.selectedDocument && <AssetPreview asset={this.state.selectedDocument}/>}
@@ -120,7 +190,6 @@ export default class Assets extends Component {
               </Grid>
             </Paper>
         }
-
       </div>
     );
   }

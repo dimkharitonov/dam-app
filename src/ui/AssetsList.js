@@ -17,19 +17,11 @@ export default class AssetsList extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      selected: props.selected || 0,
-      assets: [ ...props.assets ],
-    };
-
     this.onSelect = props.onSelect || (()=>true)
     this._isMounted = false;
   }
 
   handleListItemClick = (event, payload) => {
-    this.setState({
-      selected: payload.index
-    });
     this.onSelect(payload.document);
   };
 
@@ -37,16 +29,15 @@ export default class AssetsList extends Component {
     return (
       <List style={styles.container}>
         {
-          this.state.assets.map((asset,idx) => (
+          this.props.assets.map((asset,idx) => (
             <ListItem
               button
-              selected={this.state.selected === idx}
+              selected={this.props.selected === idx}
               onClick={event => this.handleListItemClick(event, {index: idx, document: asset.fileName})}
               key={asset.fileName}
             >
               <ListItemText
                 primary={asset.title.replace(/_/gi, ' ')}
-                secondary={asset.fileName}
               />
             </ListItem>
           ))
